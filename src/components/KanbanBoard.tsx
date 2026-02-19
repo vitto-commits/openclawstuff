@@ -154,8 +154,8 @@ export default function KanbanBoard() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Task Board</h2>
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900">Task Board</h2>
         <motion.button
           onClick={() => setShowAdd(true)}
           className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
@@ -177,7 +177,7 @@ export default function KanbanBoard() {
             exit="exit"
           >
             <motion.div
-              className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md"
+              className="bg-white rounded-xl shadow-xl p-5 md:p-6 w-full max-w-md mx-4 md:mx-0"
               onClick={e => e.stopPropagation()}
               variants={modalVariants}
               initial="hidden"

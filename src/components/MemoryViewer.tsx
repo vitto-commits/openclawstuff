@@ -34,7 +34,7 @@ export default function MemoryViewer() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Memory Viewer</h2>
+      <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 md:mb-6">Memory Viewer</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <motion.div
           className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden"

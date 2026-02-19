@@ -115,17 +115,17 @@ export default function SkillsManager() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 mb-4 md:mb-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Skills</h1>
-          <p className="text-sm text-gray-500 mt-1">{custom.length + builtin.length} skills installed</p>
+          <h1 className="text-lg md:text-xl font-bold text-gray-900">Skills</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{custom.length + builtin.length} skills installed</p>
         </div>
         <input
           type="text"
           placeholder="Search skills..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-gray-200"
+          className="px-3 py-2 border border-gray-200 rounded-lg text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-gray-200"
         />
       </div>
       <Section title="Custom Skills" skills={filteredCustom} />

@@ -44,8 +44,8 @@ export default function ActivityFeed() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Activity Feed</h2>
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900">Activity Feed</h2>
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-400">Live updates via SSE</span>
           <motion.button whileHover={{ scale: 1.1, rotate: 180 }} whileTap={{ scale: 0.9 }} onClick={load} className="text-sm text-gray-500 hover:text-gray-700" transition={{ duration: 0.3 }}>↻</motion.button>
@@ -73,9 +73,9 @@ export default function ActivityFeed() {
                 initial="hidden"
                 animate="visible"
                 layout
-                className="px-5 py-3 flex items-start gap-4 hover:bg-gray-50 transition-colors"
+                className="px-4 md:px-5 py-3 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 hover:bg-gray-50 transition-colors"
               >
-                <div className="text-right min-w-[80px] mt-0.5">
+                <div className="flex items-center gap-2 sm:block sm:text-right sm:min-w-[80px] sm:mt-0.5">
                   <div className="text-xs text-gray-400">{formatDate(item.created_at)}</div>
                   <div className="text-[10px] text-gray-300">{formatTime(item.created_at)}</div>
                 </div>

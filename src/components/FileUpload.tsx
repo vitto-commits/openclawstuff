@@ -48,7 +48,7 @@ export default function FileUpload() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Files</h2>
+      <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 md:mb-6">Files</h2>
 
       <motion.div
         className={`border-2 border-dashed rounded-xl p-8 text-center mb-6 transition-colors cursor-pointer ${

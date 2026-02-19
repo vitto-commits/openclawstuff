@@ -101,14 +101,14 @@ export default function Journal() {
   return (
     <div className="max-w-2xl mx-auto">
       {/* Date navigation */}
-      <div className="flex items-center gap-3 mb-10">
+      <div className="flex items-center gap-2 mb-6 md:mb-10 flex-wrap">
         <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => changeDate(-1)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </motion.button>
         <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => changeDate(1)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors" disabled={isToday}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
         </motion.button>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-500 bg-white" />
+        <input type="date" value={date} onChange={e => setDate(e.target.value)} className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-500 bg-white min-w-0 flex-shrink" />
         {!isToday && <button onClick={() => setDate(new Date().toISOString().slice(0, 10))} className="text-xs text-blue-500 hover:text-blue-700 font-medium">Today</button>}
         {isToday && (
           <motion.span
@@ -127,7 +127,7 @@ export default function Journal() {
         transition={{ duration: 0.3 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">{data.dayLabel}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-1">{data.dayLabel}</h1>
         <p className="text-sm text-gray-400">Daily Journal</p>
       </motion.div>
 

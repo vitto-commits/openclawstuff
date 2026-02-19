@@ -205,7 +205,7 @@ export default function DashboardOverview({
     >
       {/* ── Header ── */}
       <motion.div variants={fadeInUp} className="mb-2">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
           {getGreeting()} 👋
         </h1>
         <p className="text-sm text-gray-400 mt-0.5">{getTodayFormatted()}</p>

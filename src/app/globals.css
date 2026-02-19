@@ -17,3 +17,34 @@ body {
 
 /* Kanban drag */
 .drag-over { background: #f0f9ff !important; border-color: #3b82f6 !important; }
+
+/* Mobile touch target: min 44px height */
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Safe area for notch/home bar */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile kanban column max-height override */
+@media (max-width: 767px) {
+  .kanban-column {
+    height: auto !important;
+    max-height: 320px !important;
+  }
+}

@@ -77,10 +77,10 @@ export default function CronManager() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Cron Jobs</h2>
-          <p className="text-sm text-gray-500 mt-1">{jobs.length} job{jobs.length !== 1 ? 's' : ''} configured</p>
+          <h2 className="text-lg md:text-xl font-semibold text-gray-900">Cron Jobs</h2>
+          <p className="text-sm text-gray-500 mt-0.5">{jobs.length} job{jobs.length !== 1 ? 's' : ''} configured</p>
         </div>
         <motion.button
           onClick={() => setShowForm(!showForm)}
@@ -171,8 +171,61 @@ export default function CronManager() {
         )}
       </AnimatePresence>
 
+      {/* Mobile: card layout */}
+      <div className="md:hidden space-y-3">
+        {jobs.length === 0 && (
+          <motion.div
+            className="bg-white border border-gray-200 rounded-xl px-5 py-8 text-center text-sm text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            No cron jobs configured
+          </motion.div>
+        )}
+        <AnimatePresence>
+          {jobs.map(job => (
+            <motion.div
+              key={job.id}
+              className="bg-white border border-gray-200 rounded-xl p-4"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              layout
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-gray-900">{job.name}</div>
+                  {job.description && <div className="text-xs text-gray-400 mt-0.5 line-clamp-2">{job.description}</div>}
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Toggle enabled={job.enabled} onToggle={() => toggle(job)} />
+                  <motion.button
+                    onClick={() => deleteJob(job.id)}
+                    className="text-gray-300 hover:text-red-400 transition-colors text-sm p-1"
+                    whileTap={{ scale: 0.9 }}
+                  >✕</motion.button>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <div className="text-gray-400">Schedule</div>
+                  <div className="text-gray-700 font-medium mt-0.5">{job.scheduleHuman || job.scheduleValue}</div>
+                  <div className="text-gray-400 font-mono mt-0.5">{job.scheduleValue}</div>
+                </div>
+                <div>
+                  <div className="text-gray-400">Last / Next Run</div>
+                  <div className="text-gray-600 mt-0.5">{job.lastRun ? new Date(job.lastRun).toLocaleDateString() : '—'}</div>
+                  <div className="text-gray-400 mt-0.5">{job.nextRun ? new Date(job.nextRun).toLocaleDateString() : '—'}</div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Desktop: table layout */}
       <motion.div
-        className="bg-white border border-gray-200 rounded-xl overflow-hidden"
+        className="hidden md:block bg-white border border-gray-200 rounded-xl overflow-hidden"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}

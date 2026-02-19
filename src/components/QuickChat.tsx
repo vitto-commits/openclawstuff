@@ -38,9 +38,9 @@ export default function QuickChat({ agents }: { agents: any[] }) {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Chat</h2>
+      <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 md:mb-6">Quick Chat</h2>
       
-      <div className="max-w-2xl">
+      <div className="w-full max-w-2xl">
         <div className="mb-4">
           <label className="text-sm text-gray-500 block mb-1.5">Send to</label>
           <div className="flex gap-2 flex-wrap">

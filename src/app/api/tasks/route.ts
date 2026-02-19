@@ -53,6 +53,10 @@ async function fetchSupabase(method: string, path: string, body?: any) {
     'Content-Type': 'application/json',
   };
 
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    headers['Prefer'] = 'return=representation';
+  }
+
   const options: RequestInit = {
     method,
     headers,
@@ -71,7 +75,9 @@ async function fetchSupabase(method: string, path: string, body?: any) {
     return null;
   }
 
-  return response.json();
+  const text = await response.text();
+  if (!text) return null;
+  return JSON.parse(text);
 }
 
 async function getSupabaseTasks() {

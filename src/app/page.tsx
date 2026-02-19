@@ -50,15 +50,15 @@ export default function Home() {
 
   const fetchAgents = useCallback(async () => {
     try {
-      const data = await apiJson<any[]>('/api/agents');
-      setAgents(data);
+      const data = await apiJson<any>('/api/agents');
+      setAgents(Array.isArray(data) ? data : []);
     } catch {}
   }, []);
 
   useEffect(() => { fetchAgents(); }, [fetchAgents]);
 
   useSSE({
-    handlers: { agents: (d) => setAgents(d) },
+    handlers: { agents: (d) => setAgents(Array.isArray(d) ? d : []) },
     pollInterval: 30000,
     pollFallbacks: { agents: fetchAgents },
   });

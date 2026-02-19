@@ -48,8 +48,25 @@ export default function Journal() {
 
   const fetchJournal = useCallback(async () => {
     try {
-      const data = await apiJson<NarrativeJournal>(`/api/journal?date=${date}`);
-      setData(data);
+      const raw = await apiJson<any>(`/api/journal?date=${date}`);
+      if (raw && typeof raw === 'object') {
+        setData({
+          date: raw.date || date,
+          dayLabel: raw.dayLabel || date,
+          tags: Array.isArray(raw.tags) ? raw.tags : [],
+          accomplishments: Array.isArray(raw.accomplishments) ? raw.accomplishments : [],
+          problems: Array.isArray(raw.problems) ? raw.problems : [],
+          struggles: Array.isArray(raw.struggles) ? raw.struggles : [],
+          stats: {
+            totalTokens: raw.stats?.totalTokens ?? 0,
+            totalCost: raw.stats?.totalCost ?? 0,
+            subagentsSpawned: raw.stats?.subagentsSpawned ?? 0,
+            activeTimeMinutes: raw.stats?.activeTimeMinutes ?? 0,
+          },
+        });
+      } else {
+        setData(null);
+      }
     } catch {} finally { setLoading(false); }
   }, [date]);
 

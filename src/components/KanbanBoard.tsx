@@ -92,8 +92,12 @@ export default function KanbanBoard() {
 
   const load = useCallback(async () => {
     try {
-      const data = await apiJson<TaskData>('/api/tasks');
-      setData(data);
+      const raw = await apiJson<any>('/api/tasks');
+      setData({
+        todo: Array.isArray(raw?.todo) ? raw.todo : [],
+        in_progress: Array.isArray(raw?.in_progress) ? raw.in_progress : [],
+        done: Array.isArray(raw?.done) ? raw.done : [],
+      });
     } catch {}
   }, []);
 

@@ -20,8 +20,11 @@ export default function SkillsManager() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    apiJson<{ custom: Skill[]; builtin: Skill[] }>('/api/skills')
-      .then(d => { setCustom(d.custom); setBuiltin(d.builtin); })
+    apiJson<any>('/api/skills')
+      .then(d => {
+        setCustom(Array.isArray(d?.custom) ? d.custom : []);
+        setBuiltin(Array.isArray(d?.builtin) ? d.builtin : []);
+      })
       .catch(() => {});
   }, []);
 

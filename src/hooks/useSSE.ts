@@ -45,6 +45,7 @@ export function useSSE({ handlers, pollInterval = 15000, pollFallbacks }: UseSSE
       es = new EventSource(buildApiUrl('/api/events'));
 
       es.onopen = () => {
+        retryCount = 0;
         stopPolling();
       };
 
@@ -63,13 +64,16 @@ export function useSSE({ handlers, pollInterval = 15000, pollFallbacks }: UseSSE
         es?.close();
         es = null;
         startPolling();
-        // Reconnect after 3s
+        // Reconnect with exponential backoff (max 60s)
         if (!cancelled) {
-          reconnectTimer = setTimeout(connect, 3000);
+          const delay = Math.min(3000 * Math.pow(2, retryCount), 60000);
+          retryCount++;
+          reconnectTimer = setTimeout(connect, delay);
         }
       };
     };
 
+    let retryCount = 0;
     connect();
 
     return () => {

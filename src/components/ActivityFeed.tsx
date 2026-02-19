@@ -20,8 +20,8 @@ export default function ActivityFeed() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiJson<any[]>('/api/activity?limit=100');
-      setItems(data);
+      const data = await apiJson<any>('/api/activity?limit=100');
+      setItems(Array.isArray(data) ? data : []);
     } catch {}
     setLoading(false);
   }, []);
@@ -29,7 +29,7 @@ export default function ActivityFeed() {
   useEffect(() => { load(); }, [load]);
 
   useSSE({
-    handlers: { activity: (d) => { setItems(d); setLoading(false); } },
+    handlers: { activity: (d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); } },
     pollInterval: 15000,
     pollFallbacks: { activity: load },
   });

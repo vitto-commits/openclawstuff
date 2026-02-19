@@ -12,15 +12,18 @@ export default function CostTracker() {
 
   const load = useCallback(async () => {
     try {
-      const data = await apiJson<{ byModel: any[]; bySession: any[] }>('/api/costs');
-      setData(data);
+      const raw = await apiJson<any>('/api/costs');
+      setData({
+        byModel: Array.isArray(raw?.byModel) ? raw.byModel : [],
+        bySession: Array.isArray(raw?.bySession) ? raw.bySession : [],
+      });
     } catch {}
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   useSSE({
-    handlers: { costs: (d) => setData(d) },
+    handlers: { costs: (d) => setData({ byModel: Array.isArray(d?.byModel) ? d.byModel : [], bySession: Array.isArray(d?.bySession) ? d.bySession : [] }) },
     pollInterval: 30000,
     pollFallbacks: { costs: load },
   });

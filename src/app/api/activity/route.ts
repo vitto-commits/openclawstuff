@@ -55,7 +55,9 @@ async function fetchSupabase(method: string, path: string, body?: any) {
     return null;
   }
 
-  return response.json();
+  const text = await response.text();
+  if (!text) return null;
+  return JSON.parse(text);
 }
 
 async function getSupabaseActivity(limit: number) {

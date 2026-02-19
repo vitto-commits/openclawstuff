@@ -7,6 +7,11 @@ const SESSIONS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'a
 const DATA_DIR = path.join(process.env.HOME || '/home/vtto', 'agent-dashboard', 'data');
 const TODO_FILE = path.join(DATA_DIR, 'todo.json');
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const useSupabase = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+
 interface TodoItem {
   id: string;
   title: string;
@@ -24,6 +29,67 @@ interface AgentTask {
   completed_at?: string;
   duration?: string;
   sessionId?: string;
+}
+
+interface SupabaseTask {
+  id: string;
+  label: string;
+  description: string;
+  status: 'todo' | 'in_progress' | 'done' | 'failed';
+  agent_id?: string;
+  model?: string;
+  duration_seconds?: number;
+  created_at: string;
+  completed_at?: string;
+  metadata?: Record<string, any>;
+}
+
+// Supabase REST API helpers
+async function fetchSupabase(method: string, path: string, body?: any) {
+  const url = `${SUPABASE_URL}/rest/v1${path}`;
+  const headers: Record<string, string> = {
+    apikey: SUPABASE_ANON_KEY!,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY!}`,
+    'Content-Type': 'application/json',
+  };
+
+  const options: RequestInit = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`Supabase API error: ${response.status} ${response.statusText}`);
+  }
+
+  if (method === 'DELETE' || response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+}
+
+async function getSupabaseTasks() {
+  try {
+    const tasks = await fetchSupabase('GET', '/tasks?select=*&order=created_at.desc');
+    if (!Array.isArray(tasks)) return { todo: [], in_progress: [], done: [] };
+
+    const grouped = {
+      todo: tasks.filter((t: SupabaseTask) => t.status === 'todo'),
+      in_progress: tasks.filter((t: SupabaseTask) => t.status === 'in_progress'),
+      done: tasks.filter((t: SupabaseTask) => t.status === 'done' || t.status === 'failed'),
+    };
+
+    return grouped;
+  } catch (error) {
+    console.error('Failed to fetch from Supabase:', error);
+    throw error;
+  }
 }
 
 function readTodos(): TodoItem[] {
@@ -170,6 +236,16 @@ function parseSessionFiles(): AgentTask[] {
 }
 
 export async function GET() {
+  try {
+    if (useSupabase) {
+      const tasks = await getSupabaseTasks();
+      return NextResponse.json(tasks);
+    }
+  } catch (error) {
+    console.error('Supabase fetch failed, falling back to local files:', error);
+  }
+
+  // Fallback to local files
   const todos = readTodos();
   const agentTasks = parseSessionFiles();
 
@@ -182,12 +258,32 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
+
+  if (useSupabase) {
+    try {
+      const task: SupabaseTask = {
+        id,
+        label: body.title || body.label || '',
+        description: body.description || '',
+        status: 'todo',
+        created_at: createdAt,
+      };
+      const result = await fetchSupabase('POST', '/tasks', task);
+      return NextResponse.json(result || task, { status: 201 });
+    } catch (error) {
+      console.error('Supabase insert failed, falling back to local files:', error);
+    }
+  }
+
+  // Fallback to local files
   const todos = readTodos();
   const item: TodoItem = {
-    id: crypto.randomUUID(),
+    id,
     title: body.title || '',
     description: body.description || '',
-    created_at: new Date().toISOString(),
+    created_at: createdAt,
   };
   todos.push(item);
   writeTodos(todos);
@@ -196,6 +292,17 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const { id } = await req.json();
+
+  if (useSupabase) {
+    try {
+      await fetchSupabase('DELETE', `/tasks?id=eq.${id}`);
+      return NextResponse.json({ ok: true });
+    } catch (error) {
+      console.error('Supabase delete failed, falling back to local files:', error);
+    }
+  }
+
+  // Fallback to local files
   let todos = readTodos();
   todos = todos.filter(t => t.id !== id);
   writeTodos(todos);

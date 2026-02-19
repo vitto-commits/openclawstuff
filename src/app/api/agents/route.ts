@@ -4,6 +4,11 @@ import path from 'path';
 
 const SESSIONS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'agents', 'main', 'sessions');
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const useSupabase = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+
 interface AgentInfo {
   id: string;
   name: string;
@@ -13,6 +18,69 @@ interface AgentInfo {
   session: string;
   provider: string;
   total_sessions: number;
+  machine?: string;
+}
+
+interface SupabaseAgent {
+  id: string;
+  name: string;
+  machine?: string;
+  model?: string;
+  status?: string;
+  last_active?: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+}
+
+async function fetchSupabase(method: string, path: string, body?: any) {
+  const url = `${SUPABASE_URL}/rest/v1${path}`;
+  const headers: Record<string, string> = {
+    apikey: SUPABASE_ANON_KEY!,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY!}`,
+    'Content-Type': 'application/json',
+  };
+
+  const options: RequestInit = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`Supabase API error: ${response.status} ${response.statusText}`);
+  }
+
+  if (method === 'DELETE' || response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+}
+
+async function getSupabaseAgents() {
+  try {
+    const agents = await fetchSupabase('GET', '/agents?select=*&order=last_active.desc');
+    if (!Array.isArray(agents)) return [];
+
+    return agents.map((a: SupabaseAgent) => ({
+      id: a.id,
+      name: a.name || 'Unknown Agent',
+      model: a.model || 'unknown',
+      status: a.status || 'offline',
+      last_active: a.last_active || a.created_at || new Date().toISOString(),
+      session: '',
+      provider: a.metadata?.provider || 'unknown',
+      total_sessions: a.metadata?.total_sessions || 0,
+      machine: a.machine,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch agents from Supabase:', error);
+    throw error;
+  }
 }
 
 function parseSessionFiles(): AgentInfo[] {
@@ -106,6 +174,16 @@ function isRecent(timestamp: string): boolean {
 }
 
 export async function GET() {
+  if (useSupabase) {
+    try {
+      const agents = await getSupabaseAgents();
+      return NextResponse.json(agents);
+    } catch (error) {
+      console.error('Supabase fetch failed, falling back to local files:', error);
+    }
+  }
+
+  // Fallback to local files
   const agents = parseSessionFiles();
   return NextResponse.json(agents);
 }

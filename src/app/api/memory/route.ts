@@ -50,5 +50,14 @@ export async function GET(req: NextRequest) {
       .forEach(f => addFile(path.join(memDir, f), 'memory'));
   }
 
-  return NextResponse.json(files);
+  // If no files found, likely running on Vercel (no local filesystem)
+  if (files.length === 0) {
+    return NextResponse.json({
+      files: [],
+      local_only: true,
+      message: 'Memory files are only visible when running locally. Vercel does not have access to the local workspace.'
+    });
+  }
+
+  return NextResponse.json({ files, local_only: false });
 }

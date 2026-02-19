@@ -4,6 +4,78 @@ import path from 'path';
 
 const SESSIONS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'agents', 'main', 'sessions');
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const useSupabase = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+
+interface SupabaseJournalEntry {
+  id: string;
+  date: string;
+  agent_id?: string;
+  tags: string[];
+  accomplishments: string[];
+  problems: string[];
+  struggles: string[];
+  stats?: Record<string, any>;
+  created_at: string;
+}
+
+async function fetchSupabase(method: string, path: string, body?: any) {
+  const url = `${SUPABASE_URL}/rest/v1${path}`;
+  const headers: Record<string, string> = {
+    apikey: SUPABASE_ANON_KEY!,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY!}`,
+    'Content-Type': 'application/json',
+  };
+
+  const options: RequestInit = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`Supabase API error: ${response.status} ${response.statusText}`);
+  }
+
+  if (method === 'DELETE' || response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+}
+
+async function getSupabaseJournalEntry(targetDate: string) {
+  try {
+    const entries = await fetchSupabase('GET', `/journal_entries?date=eq.${targetDate}&select=*&limit=1`);
+    if (!Array.isArray(entries) || entries.length === 0) return null;
+
+    const entry = entries[0] as SupabaseJournalEntry;
+    return {
+      date: entry.date,
+      dayLabel: formatDayLabel(entry.date),
+      tags: entry.tags || [],
+      accomplishments: entry.accomplishments || [],
+      problems: entry.problems || [],
+      struggles: entry.struggles || [],
+      stats: entry.stats || {
+        totalTokens: 0,
+        totalCost: 0,
+        subagentsSpawned: 0,
+        activeTimeMinutes: 0,
+      },
+    };
+  } catch (error) {
+    console.error('Failed to fetch journal from Supabase:', error);
+    return null;
+  }
+}
+
 interface NarrativeJournal {
   date: string;
   dayLabel: string;
@@ -418,6 +490,19 @@ function parseSessionsForDate(targetDate: string): NarrativeJournal {
 export async function GET(req: NextRequest) {
   const dateParam = req.nextUrl.searchParams.get('date');
   const targetDate = dateParam || new Date().toISOString().slice(0, 10);
+  
+  if (useSupabase) {
+    try {
+      const data = await getSupabaseJournalEntry(targetDate);
+      if (data) {
+        return NextResponse.json(data);
+      }
+    } catch (error) {
+      console.error('Supabase fetch failed, falling back to local files:', error);
+    }
+  }
+
+  // Fallback to parsing local session files
   const data = parseSessionsForDate(targetDate);
   return NextResponse.json(data);
 }

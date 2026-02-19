@@ -5,6 +5,11 @@ import path from 'path';
 const SESSIONS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'agents', 'main', 'sessions');
 const CHAT_LOG = path.join(process.env.HOME || '/home/vtto', 'agent-dashboard', 'data', 'chat-log.json');
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const useSupabase = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+
 interface ActivityItem {
   id: string;
   agent: string;
@@ -13,6 +18,63 @@ interface ActivityItem {
   level: string;
   created_at: string;
   session?: string;
+}
+
+interface SupabaseActivity {
+  id: string;
+  agent_id?: string;
+  type: string;
+  content: string;
+  created_at: string;
+  metadata?: Record<string, any>;
+}
+
+async function fetchSupabase(method: string, path: string, body?: any) {
+  const url = `${SUPABASE_URL}/rest/v1${path}`;
+  const headers: Record<string, string> = {
+    apikey: SUPABASE_ANON_KEY!,
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY!}`,
+    'Content-Type': 'application/json',
+  };
+
+  const options: RequestInit = {
+    method,
+    headers,
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    throw new Error(`Supabase API error: ${response.status} ${response.statusText}`);
+  }
+
+  if (method === 'DELETE' || response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+}
+
+async function getSupabaseActivity(limit: number) {
+  try {
+    const items = await fetchSupabase('GET', `/activity?select=*&order=created_at.desc&limit=${limit}`);
+    if (!Array.isArray(items)) return [];
+
+    return items.map((a: SupabaseActivity) => ({
+      id: a.id,
+      agent: a.agent_id || 'main',
+      action: a.type,
+      details: a.content,
+      level: a.metadata?.level || 'info',
+      created_at: a.created_at,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch activity from Supabase:', error);
+    throw error;
+  }
 }
 
 function parseSessionActivity(limit: number): ActivityItem[] {
@@ -176,6 +238,17 @@ function parseSessionActivity(limit: number): ActivityItem[] {
 
 export async function GET(req: NextRequest) {
   const limit = parseInt(req.nextUrl.searchParams.get('limit') || '100');
+  
+  if (useSupabase) {
+    try {
+      const items = await getSupabaseActivity(limit);
+      return NextResponse.json(items);
+    } catch (error) {
+      console.error('Supabase fetch failed, falling back to local files:', error);
+    }
+  }
+
+  // Fallback to local files
   const items = parseSessionActivity(limit);
   return NextResponse.json(items);
 }

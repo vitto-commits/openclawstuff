@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 const DATA_FILE = path.join(process.env.HOME || '/home/vtto', 'agent-dashboard/data/cron-jobs.json');
+const DATA_DIR = path.dirname(DATA_FILE);
 
 function readJobs() {
   try {
@@ -13,11 +14,21 @@ function readJobs() {
 }
 
 function writeJobs(jobs: any[]) {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(DATA_FILE, JSON.stringify(jobs, null, 2));
 }
 
 export async function GET() {
-  return NextResponse.json(readJobs());
+  try {
+    return NextResponse.json(readJobs());
+  } catch (error) {
+    // Return empty list if cron management is not available (e.g., on Vercel)
+    return NextResponse.json({
+      jobs: [],
+      local_only: true,
+      message: 'Cron jobs are managed locally. This endpoint is not available on Vercel.'
+    });
+  }
 }
 
 export async function POST(req: NextRequest) {

@@ -54,5 +54,16 @@ function scanDir(dir: string, source: 'built-in' | 'custom'): Skill[] {
 export async function GET() {
   const custom = scanDir(CUSTOM_SKILLS_DIR, 'custom');
   const builtin = scanDir(BUILTIN_SKILLS_DIR, 'built-in');
-  return NextResponse.json({ custom, builtin });
+  
+  // If no skills found, likely running on Vercel (no local filesystem)
+  if (custom.length === 0 && builtin.length === 0) {
+    return NextResponse.json({
+      custom: [],
+      builtin: [],
+      local_only: true,
+      message: 'Skills are only visible when running locally. Vercel does not have access to local skill directories.'
+    });
+  }
+  
+  return NextResponse.json({ custom, builtin, local_only: false });
 }

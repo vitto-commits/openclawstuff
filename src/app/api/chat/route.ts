@@ -24,25 +24,43 @@ function writeChatLog(items: any[]) {
 }
 
 export async function GET() {
-  return NextResponse.json(readChatLog());
+  try {
+    return NextResponse.json(readChatLog());
+  } catch (error) {
+    // Return empty list if chat history is not available (e.g., on Vercel)
+    return NextResponse.json({
+      items: [],
+      local_only: true,
+      message: 'Chat history is stored locally. This endpoint is not available on Vercel.'
+    });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const items = readChatLog();
-  
-  const entry = {
-    agent: body.agent || 'unknown',
-    message: body.message,
-    timestamp: new Date().toISOString(),
-  };
-  
-  items.push(entry);
-  
-  // Keep last 500 messages
-  if (items.length > 500) items.splice(0, items.length - 500);
-  
-  writeChatLog(items);
-  
-  return NextResponse.json({ ok: true, entry }, { status: 201 });
+  try {
+    const body = await req.json();
+    const items = readChatLog();
+    
+    const entry = {
+      agent: body.agent || 'unknown',
+      message: body.message,
+      timestamp: new Date().toISOString(),
+    };
+    
+    items.push(entry);
+    
+    // Keep last 500 messages
+    if (items.length > 500) items.splice(0, items.length - 500);
+    
+    writeChatLog(items);
+    
+    return NextResponse.json({ ok: true, entry }, { status: 201 });
+  } catch (error) {
+    // If local storage is not available, return error but don't crash
+    return NextResponse.json({ 
+      ok: false, 
+      local_only: true,
+      message: 'Chat history storage not available on this environment'
+    }, { status: 201 });
+  }
 }

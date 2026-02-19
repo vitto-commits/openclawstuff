@@ -605,20 +605,12 @@ function generateNarrative(tasks: TaskRecord[], targetDate: string): string {
     const intro = THEME_INTROS[theme] || 'Worked on';
     if (group.length === 1) {
       const t = group[0];
-      const desc = t.description ? extractFirstSentence(t.description) : labelToReadableNarrative(t.label);
       const dur = t.duration_seconds ? ` (${formatDuration(t.duration_seconds)})` : '';
-      paragraphs.push(`${intro} — ${desc.toLowerCase()}${dur}.`);
+      paragraphs.push(`${intro}${dur}.`);
     } else {
-      const items = group.map(t => {
-        const name = labelToReadableNarrative(t.label);
-        const dur = t.duration_seconds ? ` (${formatDuration(t.duration_seconds)})` : '';
-        return `${name}${dur}`;
-      });
-      if (items.length <= 3) {
-        paragraphs.push(`${intro}: ${items.join(', ')}.`);
-      } else {
-        paragraphs.push(`${intro}: ${items.slice(0, 3).join(', ')}, and ${items.length - 3} more.`);
-      }
+      const totalDur = group.reduce((sum, t) => sum + (t.duration_seconds || 0), 0);
+      const durStr = totalDur > 0 ? ` — ${formatDuration(totalDur)} total across ${group.length} tasks` : ` across ${group.length} tasks`;
+      paragraphs.push(`${intro}${durStr}.`);
     }
   }
   
@@ -632,14 +624,24 @@ function generateNarrative(tasks: TaskRecord[], targetDate: string): string {
 }
 
 function extractFirstSentence(text: string): string {
-  // Strip markdown and paths
-  let clean = text.replace(/\*\*[^*]+\*\*/g, '').replace(/~\/[\w\-/.]+/g, '').replace(/\/home\/[\w\-/.]+/g, '').trim();
-  // Remove "You are..." preambles
+  // Strip markdown, paths, preambles
+  let clean = text
+    .replace(/\*\*[^*]+\*\*/g, '')
+    .replace(/~\/[\w\-/.]+/g, '')
+    .replace(/\/home\/[\w\-/.]+/g, '')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/\bat\s*\.\s*/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+  // Remove common preambles
   clean = clean.replace(/^You are [^.]+\.\s*/i, '');
-  // Take first sentence
-  const match = clean.match(/^[^.!?]+[.!?]/);
-  if (match && match[0].length > 10) return match[0].trim();
-  return clean.substring(0, 120).trim();
+  clean = clean.replace(/^(Refactor|Update|Add|Create|Build|Make|Fix|Replace|Implement|Wire up|Set up|Completely rebuild|Refine)\s+the\s+[^.]*?\s+(to|by|so|with|—)\s*/i, (_, verb) => `${verb.toLowerCase()}ed `);
+  // Take first meaningful sentence
+  const match = clean.match(/^[^.!?\n]+[.!?]/);
+  let result = match && match[0].length > 10 ? match[0].trim() : clean.substring(0, 100).trim();
+  // Clean up trailing weirdness
+  result = result.replace(/\s+at\s*\.?\s*$/, '').replace(/\.\s*$/, '');
+  return result;
 }
 
 // Build journal from Supabase tasks for the given date

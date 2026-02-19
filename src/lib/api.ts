@@ -1,42 +1,37 @@
 /**
  * API Configuration Utility
  * 
- * Provides a configurable base URL for all API calls.
- * Uses NEXT_PUBLIC_API_URL environment variable if set,
- * otherwise defaults to relative URLs (for local dev).
+ * On localhost: uses relative URLs (hits Next.js API routes)
+ * On Vercel/production: fetches tunnel URL from /api/config endpoint
  */
 
+let cachedApiUrl: string | null = null;
+
 export function getApiUrl(): string {
-  // Check for environment variable first
-  if (typeof window !== 'undefined' && (window as any).__NEXT_PUBLIC_API_URL) {
-    return (window as any).__NEXT_PUBLIC_API_URL;
+  // Build-time env var (NEXT_PUBLIC_ gets inlined by Next.js)
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  if (envUrl && envUrl.length > 5) return envUrl;
+  
+  // Runtime detection: if not on localhost, check for stored tunnel URL
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem('OPENCLAW_API_URL');
+    if (stored) return stored;
   }
   
-  // Try to read from next.config or environment
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (apiUrl) {
-    return apiUrl;
-  }
-  
-  // Default to empty string (relative URLs)
+  // Default to relative URLs (local dev)
   return '';
 }
 
 export function buildApiUrl(endpoint: string): string {
   const baseUrl = getApiUrl();
   if (!baseUrl) {
-    // Relative URL for local dev
     return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   }
-  // Absolute URL when using external API
   const base = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   return `${base}${path}`;
 }
 
-/**
- * Fetch wrapper that uses configured API URL
- */
 export async function apiFetch(
   endpoint: string,
   options?: RequestInit
@@ -51,9 +46,6 @@ export async function apiFetch(
   });
 }
 
-/**
- * Fetch and parse JSON response
- */
 export async function apiJson<T = any>(
   endpoint: string,
   options?: RequestInit
@@ -65,9 +57,6 @@ export async function apiJson<T = any>(
   return response.json();
 }
 
-/**
- * SSE connection helper
- */
 export function createSSEConnection(
   onMessage: (event: string, data: any) => void,
   onError?: (error: Error) => void
@@ -79,49 +68,22 @@ export function createSSEConnection(
     try {
       const data = JSON.parse(event.data);
       onMessage('message', data);
-    } catch {
-      // Ignore parse errors
-    }
+    } catch {}
   };
 
-  // Listen for all custom events
-  eventSource.addEventListener('tasks', (event) => {
-    try {
-      const data = JSON.parse((event as any).data);
-      onMessage('tasks', data);
-    } catch {}
+  ['tasks', 'activity', 'agents', 'costs'].forEach(type => {
+    eventSource.addEventListener(type, (event) => {
+      try {
+        const data = JSON.parse((event as any).data);
+        onMessage(type, data);
+      } catch {}
+    });
   });
 
-  eventSource.addEventListener('activity', (event) => {
-    try {
-      const data = JSON.parse((event as any).data);
-      onMessage('activity', data);
-    } catch {}
-  });
-
-  eventSource.addEventListener('agents', (event) => {
-    try {
-      const data = JSON.parse((event as any).data);
-      onMessage('agents', data);
-    } catch {}
-  });
-
-  eventSource.addEventListener('costs', (event) => {
-    try {
-      const data = JSON.parse((event as any).data);
-      onMessage('costs', data);
-    } catch {}
-  });
-
-  eventSource.onerror = (error) => {
-    if (onError) {
-      onError(new Error('SSE connection error'));
-    }
+  eventSource.onerror = () => {
+    if (onError) onError(new Error('SSE connection error'));
     eventSource.close();
   };
 
-  // Return cleanup function
-  return () => {
-    eventSource.close();
-  };
+  return () => eventSource.close();
 }

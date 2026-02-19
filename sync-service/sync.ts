@@ -119,7 +119,7 @@ function saveSyncState() {
   }
 }
 
-async function getOrCreateAgent(name: string = "otto"): Promise<string> {
+async function getOrCreateAgent(name: string = "Otto"): Promise<string> {
   if (!SUPABASE_URL) {
     throw new Error("Missing SUPABASE_URL");
   }
@@ -127,7 +127,7 @@ async function getOrCreateAgent(name: string = "otto"): Promise<string> {
   try {
     // Try to fetch existing agent
     const url = new URL(`${SUPABASE_URL}/rest/v1/agents`);
-    url.searchParams.append("name", `eq.${name}`);
+    url.searchParams.append("name", `ilike.${name}`);
     url.searchParams.append("select", "id");
     url.searchParams.append("limit", "1");
 

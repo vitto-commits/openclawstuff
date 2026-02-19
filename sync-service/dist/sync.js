@@ -71,14 +71,14 @@ function saveSyncState() {
         console.error("Error saving sync state:", err);
     }
 }
-async function getOrCreateAgent(name = "otto") {
+async function getOrCreateAgent(name = "Otto") {
     if (!SUPABASE_URL) {
         throw new Error("Missing SUPABASE_URL");
     }
     try {
         // Try to fetch existing agent
         const url = new URL(`${SUPABASE_URL}/rest/v1/agents`);
-        url.searchParams.append("name", `eq.${name}`);
+        url.searchParams.append("name", `ilike.${name}`);
         url.searchParams.append("select", "id");
         url.searchParams.append("limit", "1");
         const response = await supabaseFetch(url.toString());

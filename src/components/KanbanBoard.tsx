@@ -100,10 +100,7 @@ export default function KanbanBoard() {
   useEffect(() => { load(); }, [load]);
 
   useSSE({
-    handlers: { tasks: (d) => {
-      // Only accept SSE updates if they have real data (not empty overwrites from local file SSE)
-      if (d && (d.todo?.length > 0 || d.in_progress?.length > 0 || d.done?.length > 0)) setData(d);
-    } },
+    handlers: {},  // Disabled SSE for tasks — Supabase is the source of truth now
     pollInterval: 15000,
     pollFallbacks: { tasks: load },
   });

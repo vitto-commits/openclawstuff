@@ -1,4 +1,5 @@
 node_modules/
 .next/
-data/
+/data/
+!src/data/
 uploads/

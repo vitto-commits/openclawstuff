@@ -1,0 +1,377 @@
+{
+  "custom": [
+    {
+      "name": "app-builder",
+      "description": "Build real apps from idea to deployment using a structured 6-phase framework (Discovery → Planning → Building → Polish → Handoff). Use when: (1) building a new app or product from scratch, (2) turning a vague idea into a working product, (3) user wants a Technical Co-Founder experience — professional output, not prototypes. NOT for: quick scripts, one-file utilities, or minor edits.",
+      "source": "custom",
+      "dirName": "app-builder",
+      "content": "# App Builder — The Technical Co-Founder\n\nBuild real products through a structured conversation. The user is the product owner — they make decisions, you make them happen.\n\n## Role\n\nAct as a Technical Co-Founder. Handle all the building, but keep the user in the loop and in control. Treat them as the product owner — translate technical jargon, push back on bad paths, be honest about limitations.\n\n## Intake\n\nBefore starting, gather:\n1. **The idea** — what it does, who it's for, what problem it so"
+    }
+  ],
+  "builtin": [
+    {
+      "name": "1password",
+      "description": "Set up and use 1Password CLI (op). Use when installing the CLI, enabling desktop app integration, signing in (single or multi-account), or reading/injecting/running secrets via op.",
+      "source": "built-in",
+      "dirName": "1password",
+      "content": "# 1Password CLI\n\nFollow the official CLI get-started steps. Don't guess install commands.\n\n## References\n\n- `references/get-started.md` (install + app integration + sign-in flow)\n- `references/cli-examples.md` (real `op` examples)\n\n## Workflow\n\n1. Check OS + shell.\n2. Verify CLI present: `op --version`.\n3. Confirm desktop app integration is enabled (per get-started) and the app is unlocked.\n4. REQUIRED: create a fresh tmux session for all `op` commands (no direct `op` calls outside tmux).\n5. Sig"
+    },
+    {
+      "name": "apple-notes",
+      "description": "Manage Apple Notes via the `memo` CLI on macOS (create, view, edit, delete, search, move, and export notes). Use when a user asks OpenClaw to add a note, list notes, search notes, or manage note folders.",
+      "source": "built-in",
+      "dirName": "apple-notes",
+      "content": "# Apple Notes CLI\n\nUse `memo notes` to manage Apple Notes directly from the terminal. Create, view, edit, delete, search, move notes between folders, and export to HTML/Markdown.\n\nSetup\n\n- Install (Homebrew): `brew tap antoniorodr/memo && brew install antoniorodr/memo/memo`\n- Manual (pip): `pip install .` (after cloning the repo)\n- macOS-only; if prompted, grant Automation access to Notes.app.\n\nView Notes\n\n- List all notes: `memo notes`\n- Filter by folder: `memo notes -f \"Folder Name\"`\n- Search "
+    },
+    {
+      "name": "apple-reminders",
+      "description": "Manage Apple Reminders via remindctl CLI (list, add, edit, complete, delete). Supports lists, date filters, and JSON/plain output.",
+      "source": "built-in",
+      "dirName": "apple-reminders",
+      "content": "# Apple Reminders CLI (remindctl)\n\nUse `remindctl` to manage Apple Reminders directly from the terminal.\n\n## When to Use\n\n✅ **USE this skill when:**\n\n- User explicitly mentions \"reminder\" or \"Reminders app\"\n- Creating personal to-dos with due dates that sync to iOS\n- Managing Apple Reminders lists\n- User wants tasks to appear in their iPhone/iPad Reminders app\n\n## When NOT to Use\n\n❌ **DON'T use this skill when:**\n\n- Scheduling Clawdbot tasks or alerts → use `cron` tool with systemEvent instead\n-"
+    },
+    {
+      "name": "bear-notes",
+      "description": "Create, search, and manage Bear notes via grizzly CLI.",
+      "source": "built-in",
+      "dirName": "bear-notes",
+      "content": "# Bear Notes\n\nUse `grizzly` to create, read, and manage notes in Bear on macOS.\n\nRequirements\n\n- Bear app installed and running\n- For some operations (add-text, tags, open-note --selected), a Bear app token (stored in `~/.config/grizzly/token`)\n\n## Getting a Bear Token\n\nFor operations that require a token (add-text, tags, open-note --selected), you need an authentication token:\n\n1. Open Bear → Help → API Token → Copy Token\n2. Save it: `echo \"YOUR_TOKEN\" > ~/.config/grizzly/token`\n\n## Common Comm"
+    },
+    {
+      "name": "blogwatcher",
+      "description": "Monitor blogs and RSS/Atom feeds for updates using the blogwatcher CLI.",
+      "source": "built-in",
+      "dirName": "blogwatcher",
+      "content": "# blogwatcher\n\nTrack blog and RSS/Atom feed updates with the `blogwatcher` CLI.\n\nInstall\n\n- Go: `go install github.com/Hyaxia/blogwatcher/cmd/blogwatcher@latest`\n\nQuick start\n\n- `blogwatcher --help`\n\nCommon commands\n\n- Add a blog: `blogwatcher add \"My Blog\" https://example.com`\n- List blogs: `blogwatcher blogs`\n- Scan for updates: `blogwatcher scan`\n- List articles: `blogwatcher articles`\n- Mark an article read: `blogwatcher read 1`\n- Mark all articles read: `blogwatcher read-all`\n- Remove a blo"
+    },
+    {
+      "name": "blucli",
+      "description": "BluOS CLI (blu) for discovery, playback, grouping, and volume.",
+      "source": "built-in",
+      "dirName": "blucli",
+      "content": "# blucli (blu)\n\nUse `blu` to control Bluesound/NAD players.\n\nQuick start\n\n- `blu devices` (pick target)\n- `blu --device <id> status`\n- `blu play|pause|stop`\n- `blu volume set 15`\n\nTarget selection (in priority order)\n\n- `--device <id|name|alias>`\n- `BLU_DEVICE`\n- config default (if set)\n\nCommon tasks\n\n- Grouping: `blu group status|add|remove`\n- TuneIn search/play: `blu tunein search \"query\"`, `blu tunein play \"query\"`\n\nPrefer `--json` for scripts. Confirm the target device before changing playba"
+    },
+    {
+      "name": "bluebubbles",
+      "description": "Use when you need to send or manage iMessages via BlueBubbles (recommended iMessage integration). Calls go through the generic message tool with channel=\"bluebubbles\".",
+      "source": "built-in",
+      "dirName": "bluebubbles",
+      "content": "# BlueBubbles Actions\n\n## Overview\n\nBlueBubbles is OpenClaw’s recommended iMessage integration. Use the `message` tool with `channel: \"bluebubbles\"` to send messages and manage iMessage conversations: send texts and attachments, react (tapbacks), edit/unsend, reply in threads, and manage group participants/names/icons.\n\n## Inputs to collect\n\n- `target` (prefer `chat_guid:...`; also `+15551234567` in E.164 or `user@example.com`)\n- `message` text for send/edit/reply\n- `messageId` for react/edit/un"
+    },
+    {
+      "name": "camsnap",
+      "description": "Capture frames or clips from RTSP/ONVIF cameras.",
+      "source": "built-in",
+      "dirName": "camsnap",
+      "content": "# camsnap\n\nUse `camsnap` to grab snapshots, clips, or motion events from configured cameras.\n\nSetup\n\n- Config file: `~/.config/camsnap/config.yaml`\n- Add camera: `camsnap add --name kitchen --host 192.168.0.10 --user user --pass pass`\n\nCommon commands\n\n- Discover: `camsnap discover --info`\n- Snapshot: `camsnap snap kitchen --out shot.jpg`\n- Clip: `camsnap clip kitchen --dur 5s --out clip.mp4`\n- Motion watch: `camsnap watch kitchen --threshold 0.2 --action '...'`\n- Doctor: `camsnap doctor --probe"
+    },
+    {
+      "name": "canvas",
+      "description": "",
+      "source": "built-in",
+      "dirName": "canvas",
+      "content": "# Canvas Skill\n\nDisplay HTML content on connected OpenClaw nodes (Mac app, iOS, Android).\n\n## Overview\n\nThe canvas tool lets you present web content on any connected node's canvas view. Great for:\n\n- Displaying games, visualizations, dashboards\n- Showing generated HTML content\n- Interactive demos\n\n## How It Works\n\n### Architecture\n\n```\n┌─────────────────┐     ┌──────────────────┐     ┌─────────────┐\n│  Canvas Host    │────▶│   Node Bridge    │────▶│  Node App   │\n│  (HTTP Server)  │     │  (TCP "
+    },
+    {
+      "name": "clawhub",
+      "description": "Use the ClawHub CLI to search, install, update, and publish agent skills from clawhub.com. Use when you need to fetch new skills on the fly, sync installed skills to latest or a specific version, or publish new/updated skill folders with the npm-installed clawhub CLI.",
+      "source": "built-in",
+      "dirName": "clawhub",
+      "content": "# ClawHub CLI\n\nInstall\n\n```bash\nnpm i -g clawhub\n```\n\nAuth (publish)\n\n```bash\nclawhub login\nclawhub whoami\n```\n\nSearch\n\n```bash\nclawhub search \"postgres backups\"\n```\n\nInstall\n\n```bash\nclawhub install my-skill\nclawhub install my-skill --version 1.2.3\n```\n\nUpdate (hash-based match + upgrade)\n\n```bash\nclawhub update my-skill\nclawhub update my-skill --version 1.2.3\nclawhub update --all\nclawhub update my-skill --force\nclawhub update --all --no-input --force\n```\n\nList\n\n```bash\nclawhub list\n```\n\nPublis"
+    },
+    {
+      "name": "coding-agent",
+      "description": "Delegate coding tasks to Codex, Claude Code, or Pi agents via background process. Use when: (1) building/creating new features or apps, (2) reviewing PRs (spawn in temp dir), (3) refactoring large codebases, (4) iterative coding that needs file exploration. NOT for: simple one-liner fixes (just edit), reading code (use read tool), or any work in ~/clawd workspace (never spawn agents here). Requires a bash tool that supports pty:true.",
+      "source": "built-in",
+      "dirName": "coding-agent",
+      "content": "# Coding Agent (bash-first)\n\nUse **bash** (with optional background mode) for all coding agent work. Simple and effective.\n\n## ⚠️ PTY Mode Required!\n\nCoding agents (Codex, Claude Code, Pi) are **interactive terminal applications** that need a pseudo-terminal (PTY) to work correctly. Without PTY, you'll get broken output, missing colors, or the agent may hang.\n\n**Always use `pty:true`** when running coding agents:\n\n```bash\n# ✅ Correct - with PTY\nbash pty:true command:\"codex exec 'Your prompt'\"\n\n#"
+    },
+    {
+      "name": "discord",
+      "description": "Discord ops via the message tool (channel=discord).",
+      "source": "built-in",
+      "dirName": "discord",
+      "content": "# Discord (Via `message`)\n\nUse the `message` tool. No provider-specific `discord` tool exposed to the agent.\n\n## Musts\n\n- Always: `channel: \"discord\"`.\n- Respect gating: `channels.discord.actions.*` (some default off: `roles`, `moderation`, `presence`, `channels`).\n- Prefer explicit ids: `guildId`, `channelId`, `messageId`, `userId`.\n- Multi-account: optional `accountId`.\n\n## Guidelines\n\n- Avoid Markdown tables in outbound Discord messages.\n- Mention users as `<@USER_ID>`.\n- Prefer Discord compo"
+    },
+    {
+      "name": "eightctl",
+      "description": "Control Eight Sleep pods (status, temperature, alarms, schedules).",
+      "source": "built-in",
+      "dirName": "eightctl",
+      "content": "# eightctl\n\nUse `eightctl` for Eight Sleep pod control. Requires auth.\n\nAuth\n\n- Config: `~/.config/eightctl/config.yaml`\n- Env: `EIGHTCTL_EMAIL`, `EIGHTCTL_PASSWORD`\n\nQuick start\n\n- `eightctl status`\n- `eightctl on|off`\n- `eightctl temp 20`\n\nCommon tasks\n\n- Alarms: `eightctl alarm list|create|dismiss`\n- Schedules: `eightctl schedule list|create|update`\n- Audio: `eightctl audio state|play|pause`\n- Base: `eightctl base info|angle`\n\nNotes\n\n- API is unofficial and rate-limited; avoid repeated logins"
+    },
+    {
+      "name": "food-order",
+      "description": "Reorder Foodora orders + track ETA/status with ordercli. Never confirm without explicit user approval. Triggers: order food, reorder, track ETA.",
+      "source": "built-in",
+      "dirName": "food-order",
+      "content": "# Food order (Foodora via ordercli)\n\nGoal: reorder a previous Foodora order safely (preview first; confirm only on explicit user “yes/confirm/place the order”).\n\nHard safety rules\n\n- Never run `ordercli foodora reorder ... --confirm` unless user explicitly confirms placing the order.\n- Prefer preview-only steps first; show what will happen; ask for confirmation.\n- If user is unsure: stop at preview and ask questions.\n\nSetup (once)\n\n- Country: `ordercli foodora countries` → `ordercli foodora conf"
+    },
+    {
+      "name": "gemini",
+      "description": "Gemini CLI for one-shot Q&A, summaries, and generation.",
+      "source": "built-in",
+      "dirName": "gemini",
+      "content": "# Gemini CLI\n\nUse Gemini in one-shot mode with a positional prompt (avoid interactive mode).\n\nQuick start\n\n- `gemini \"Answer this question...\"`\n- `gemini --model <name> \"Prompt...\"`\n- `gemini --output-format json \"Return JSON\"`\n\nExtensions\n\n- List: `gemini --list-extensions`\n- Manage: `gemini extensions <command>`\n\nNotes\n\n- If auth is required, run `gemini` once interactively and follow the login flow.\n- Avoid `--yolo` for safety."
+    },
+    {
+      "name": "gh-issues",
+      "description": "Fetch GitHub issues, spawn sub-agents to implement fixes and open PRs, then monitor and address PR review comments. Usage: /gh-issues [owner/repo] [--label bug] [--limit 5] [--milestone v1.0] [--assignee @me] [--fork user/repo] [--watch] [--interval 5] [--reviews-only] [--cron] [--dry-run] [--model glm-5] [--notify-channel -1002381931352]",
+      "source": "built-in",
+      "dirName": "gh-issues",
+      "content": "# gh-issues — Auto-fix GitHub Issues with Parallel Sub-agents\n\nYou are an orchestrator. Follow these 6 phases exactly. Do not skip phases.\n\nIMPORTANT — No `gh` CLI dependency. This skill uses curl + the GitHub REST API exclusively. The GH_TOKEN env var is already injected by OpenClaw. Pass it as a Bearer token in all API calls:\n\n```\ncurl -s -H \"Authorization: Bearer $GH_TOKEN\" -H \"Accept: application/vnd.github+json\" ...\n```\n\n---\n\n## Phase 1 — Parse Arguments\n\nParse the arguments string provided"
+    },
+    {
+      "name": "gifgrep",
+      "description": "Search GIF providers with CLI/TUI, download results, and extract stills/sheets.",
+      "source": "built-in",
+      "dirName": "gifgrep",
+      "content": "# gifgrep\n\nUse `gifgrep` to search GIF providers (Tenor/Giphy), browse in a TUI, download results, and extract stills or sheets.\n\nGIF-Grab (gifgrep workflow)\n\n- Search → preview → download → extract (still/sheet) for fast review and sharing.\n\nQuick start\n\n- `gifgrep cats --max 5`\n- `gifgrep cats --format url | head -n 5`\n- `gifgrep search --json cats | jq '.[0].url'`\n- `gifgrep tui \"office handshake\"`\n- `gifgrep cats --download --max 1 --format url`\n\nTUI + previews\n\n- TUI: `gifgrep tui \"query\"`\n"
+    },
+    {
+      "name": "github",
+      "description": "GitHub operations via `gh` CLI: issues, PRs, CI runs, code review, API queries. Use when: (1) checking PR status or CI, (2) creating/commenting on issues, (3) listing/filtering PRs or issues, (4) viewing run logs. NOT for: complex web UI interactions requiring manual browser flows (use browser tooling when available), bulk operations across many repos (script with gh api), or when gh auth is not configured.",
+      "source": "built-in",
+      "dirName": "github",
+      "content": "# GitHub Skill\n\nUse the `gh` CLI to interact with GitHub repositories, issues, PRs, and CI.\n\n## When to Use\n\n✅ **USE this skill when:**\n\n- Checking PR status, reviews, or merge readiness\n- Viewing CI/workflow run status and logs\n- Creating, closing, or commenting on issues\n- Creating or merging pull requests\n- Querying GitHub API for repository data\n- Listing repos, releases, or collaborators\n\n## When NOT to Use\n\n❌ **DON'T use this skill when:**\n\n- Local git operations (commit, push, pull, branc"
+    },
+    {
+      "name": "gog",
+      "description": "Google Workspace CLI for Gmail, Calendar, Drive, Contacts, Sheets, and Docs.",
+      "source": "built-in",
+      "dirName": "gog",
+      "content": "# gog\n\nUse `gog` for Gmail/Calendar/Drive/Contacts/Sheets/Docs. Requires OAuth setup.\n\nSetup (once)\n\n- `gog auth credentials /path/to/client_secret.json`\n- `gog auth add you@gmail.com --services gmail,calendar,drive,contacts,docs,sheets`\n- `gog auth list`\n\nCommon commands\n\n- Gmail search: `gog gmail search 'newer_than:7d' --max 10`\n- Gmail messages search (per email, ignores threading): `gog gmail messages search \"in:inbox from:ryanair.com\" --max 20 --account you@example.com`\n- Gmail send (plain"
+    },
+    {
+      "name": "goplaces",
+      "description": "Query Google Places API (New) via the goplaces CLI for text search, place details, resolve, and reviews. Use for human-friendly place lookup or JSON output for scripts.",
+      "source": "built-in",
+      "dirName": "goplaces",
+      "content": "# goplaces\n\nModern Google Places API (New) CLI. Human output by default, `--json` for scripts.\n\nInstall\n\n- Homebrew: `brew install steipete/tap/goplaces`\n\nConfig\n\n- `GOOGLE_PLACES_API_KEY` required.\n- Optional: `GOOGLE_PLACES_BASE_URL` for testing/proxying.\n\nCommon commands\n\n- Search: `goplaces search \"coffee\" --open-now --min-rating 4 --limit 5`\n- Bias: `goplaces search \"pizza\" --lat 40.8 --lng -73.9 --radius-m 3000`\n- Pagination: `goplaces search \"pizza\" --page-token \"NEXT_PAGE_TOKEN\"`\n- Resol"
+    },
+    {
+      "name": "healthcheck",
+      "description": "Host security hardening and risk-tolerance configuration for OpenClaw deployments. Use when a user asks for security audits, firewall/SSH/update hardening, risk posture, exposure review, OpenClaw cron scheduling for periodic checks, or version status checks on a machine running OpenClaw (laptop, workstation, Pi, VPS).",
+      "source": "built-in",
+      "dirName": "healthcheck",
+      "content": "# OpenClaw Host Hardening\n\n## Overview\n\nAssess and harden the host running OpenClaw, then align it to a user-defined risk tolerance without breaking access. Use OpenClaw security tooling as a first-class signal, but treat OS hardening as a separate, explicit set of steps.\n\n## Core rules\n\n- Recommend running this skill with a state-of-the-art model (e.g., Opus 4.5, GPT 5.2+). The agent should self-check the current model and suggest switching if below that level; do not block execution.\n- Require"
+    },
+    {
+      "name": "himalaya",
+      "description": "CLI to manage emails via IMAP/SMTP. Use `himalaya` to list, read, write, reply, forward, search, and organize emails from the terminal. Supports multiple accounts and message composition with MML (MIME Meta Language).",
+      "source": "built-in",
+      "dirName": "himalaya",
+      "content": "# Himalaya Email CLI\n\nHimalaya is a CLI email client that lets you manage emails from the terminal using IMAP, SMTP, Notmuch, or Sendmail backends.\n\n## References\n\n- `references/configuration.md` (config file setup + IMAP/SMTP authentication)\n- `references/message-composition.md` (MML syntax for composing emails)\n\n## Prerequisites\n\n1. Himalaya CLI installed (`himalaya --version` to verify)\n2. A configuration file at `~/.config/himalaya/config.toml`\n3. IMAP/SMTP credentials configured (password s"
+    },
+    {
+      "name": "imsg",
+      "description": "iMessage/SMS CLI for listing chats, history, and sending messages via Messages.app.",
+      "source": "built-in",
+      "dirName": "imsg",
+      "content": "# imsg\n\nUse `imsg` to read and send iMessage/SMS via macOS Messages.app.\n\n## When to Use\n\n✅ **USE this skill when:**\n\n- User explicitly asks to send iMessage or SMS\n- Reading iMessage conversation history\n- Checking recent Messages.app chats\n- Sending to phone numbers or Apple IDs\n\n## When NOT to Use\n\n❌ **DON'T use this skill when:**\n\n- Telegram messages → use `message` tool with `channel:telegram`\n- Signal messages → use Signal channel if configured\n- WhatsApp messages → use WhatsApp channel if"
+    },
+    {
+      "name": "mcporter",
+      "description": "Use the mcporter CLI to list, configure, auth, and call MCP servers/tools directly (HTTP or stdio), including ad-hoc servers, config edits, and CLI/type generation.",
+      "source": "built-in",
+      "dirName": "mcporter",
+      "content": "# mcporter\n\nUse `mcporter` to work with MCP servers directly.\n\nQuick start\n\n- `mcporter list`\n- `mcporter list <server> --schema`\n- `mcporter call <server.tool> key=value`\n\nCall tools\n\n- Selector: `mcporter call linear.list_issues team=ENG limit:5`\n- Function syntax: `mcporter call \"linear.create_issue(title: \\\"Bug\\\")\"`\n- Full URL: `mcporter call https://api.example.com/mcp.fetch url:https://example.com`\n- Stdio: `mcporter call --stdio \"bun run ./server.ts\" scrape url=https://example.com`\n- JSON"
+    },
+    {
+      "name": "model-usage",
+      "description": "Use CodexBar CLI local cost usage to summarize per-model usage for Codex or Claude, including the current (most recent) model or a full model breakdown. Trigger when asked for model-level usage/cost data from codexbar, or when you need a scriptable per-model summary from codexbar cost JSON.",
+      "source": "built-in",
+      "dirName": "model-usage",
+      "content": "# Model usage\n\n## Overview\n\nGet per-model usage cost from CodexBar's local cost logs. Supports \"current model\" (most recent daily entry) or \"all models\" summaries for Codex or Claude.\n\nTODO: add Linux CLI support guidance once CodexBar CLI install path is documented for Linux.\n\n## Quick start\n\n1. Fetch cost JSON via CodexBar CLI or pass a JSON file.\n2. Use the bundled script to summarize by model.\n\n```bash\npython {baseDir}/scripts/model_usage.py --provider codex --mode current\npython {baseDir}/s"
+    },
+    {
+      "name": "nano-banana-pro",
+      "description": "Generate or edit images via Gemini 3 Pro Image (Nano Banana Pro).",
+      "source": "built-in",
+      "dirName": "nano-banana-pro",
+      "content": "# Nano Banana Pro (Gemini 3 Pro Image)\n\nUse the bundled script to generate or edit images.\n\nGenerate\n\n```bash\nuv run {baseDir}/scripts/generate_image.py --prompt \"your image description\" --filename \"output.png\" --resolution 1K\n```\n\nEdit (single image)\n\n```bash\nuv run {baseDir}/scripts/generate_image.py --prompt \"edit instructions\" --filename \"output.png\" -i \"/path/in.png\" --resolution 2K\n```\n\nMulti-image composition (up to 14 images)\n\n```bash\nuv run {baseDir}/scripts/generate_image.py --prompt \""
+    },
+    {
+      "name": "nano-pdf",
+      "description": "Edit PDFs with natural-language instructions using the nano-pdf CLI.",
+      "source": "built-in",
+      "dirName": "nano-pdf",
+      "content": "# nano-pdf\n\nUse `nano-pdf` to apply edits to a specific page in a PDF using a natural-language instruction.\n\n## Quick start\n\n```bash\nnano-pdf edit deck.pdf 1 \"Change the title to 'Q3 Results' and fix the typo in the subtitle\"\n```\n\nNotes:\n\n- Page numbers are 0-based or 1-based depending on the tool’s version/config; if the result looks off by one, retry with the other.\n- Always sanity-check the output PDF before sending it out."
+    },
+    {
+      "name": "notion",
+      "description": "Notion API for creating and managing pages, databases, and blocks.",
+      "source": "built-in",
+      "dirName": "notion",
+      "content": "# notion\n\nUse the Notion API to create/read/update pages, data sources (databases), and blocks.\n\n## Setup\n\n1. Create an integration at https://notion.so/my-integrations\n2. Copy the API key (starts with `ntn_` or `secret_`)\n3. Store it:\n\n```bash\nmkdir -p ~/.config/notion\necho \"ntn_your_key_here\" > ~/.config/notion/api_key\n```\n\n4. Share target pages/databases with your integration (click \"...\" → \"Connect to\" → your integration name)\n\n## API Basics\n\nAll requests need:\n\n```bash\nNOTION_KEY=$(cat ~/.c"
+    },
+    {
+      "name": "obsidian",
+      "description": "Work with Obsidian vaults (plain Markdown notes) and automate via obsidian-cli.",
+      "source": "built-in",
+      "dirName": "obsidian",
+      "content": "# Obsidian\n\nObsidian vault = a normal folder on disk.\n\nVault structure (typical)\n\n- Notes: `*.md` (plain text Markdown; edit with any editor)\n- Config: `.obsidian/` (workspace + plugin settings; usually don’t touch from scripts)\n- Canvases: `*.canvas` (JSON)\n- Attachments: whatever folder you chose in Obsidian settings (images/PDFs/etc.)\n\n## Find the active vault(s)\n\nObsidian desktop tracks vaults here (source of truth):\n\n- `~/Library/Application Support/obsidian/obsidian.json`\n\n`obsidian-cli` r"
+    },
+    {
+      "name": "openai-image-gen",
+      "description": "Batch-generate images via OpenAI Images API. Random prompt sampler + `index.html` gallery.",
+      "source": "built-in",
+      "dirName": "openai-image-gen",
+      "content": "# OpenAI Image Gen\n\nGenerate a handful of “random but structured” prompts and render them via the OpenAI Images API.\n\n## Run\n\n```bash\npython3 {baseDir}/scripts/gen.py\nopen ~/Projects/tmp/openai-image-gen-*/index.html  # if ~/Projects/tmp exists; else ./tmp/...\n```\n\nUseful flags:\n\n```bash\n# GPT image models with various options\npython3 {baseDir}/scripts/gen.py --count 16 --model gpt-image-1\npython3 {baseDir}/scripts/gen.py --prompt \"ultra-detailed studio photo of a lobster astronaut\" --count 4\npy"
+    },
+    {
+      "name": "openai-whisper",
+      "description": "Local speech-to-text with the Whisper CLI (no API key).",
+      "source": "built-in",
+      "dirName": "openai-whisper",
+      "content": "# Whisper (CLI)\n\nUse `whisper` to transcribe audio locally.\n\nQuick start\n\n- `whisper /path/audio.mp3 --model medium --output_format txt --output_dir .`\n- `whisper /path/audio.m4a --task translate --output_format srt`\n\nNotes\n\n- Models download to `~/.cache/whisper` on first run.\n- `--model` defaults to `turbo` on this install.\n- Use smaller models for speed, larger for accuracy."
+    },
+    {
+      "name": "openai-whisper-api",
+      "description": "Transcribe audio via OpenAI Audio Transcriptions API (Whisper).",
+      "source": "built-in",
+      "dirName": "openai-whisper-api",
+      "content": "# OpenAI Whisper API (curl)\n\nTranscribe an audio file via OpenAI’s `/v1/audio/transcriptions` endpoint.\n\n## Quick start\n\n```bash\n{baseDir}/scripts/transcribe.sh /path/to/audio.m4a\n```\n\nDefaults:\n\n- Model: `whisper-1`\n- Output: `<input>.txt`\n\n## Useful flags\n\n```bash\n{baseDir}/scripts/transcribe.sh /path/to/audio.ogg --model whisper-1 --out /tmp/transcript.txt\n{baseDir}/scripts/transcribe.sh /path/to/audio.m4a --language en\n{baseDir}/scripts/transcribe.sh /path/to/audio.m4a --prompt \"Speaker name"
+    },
+    {
+      "name": "openhue",
+      "description": "Control Philips Hue lights and scenes via the OpenHue CLI.",
+      "source": "built-in",
+      "dirName": "openhue",
+      "content": "# OpenHue CLI\n\nUse `openhue` to control Philips Hue lights and scenes via a Hue Bridge.\n\n## When to Use\n\n✅ **USE this skill when:**\n\n- \"Turn on/off the lights\"\n- \"Dim the living room lights\"\n- \"Set a scene\" or \"movie mode\"\n- Controlling specific Hue rooms or zones\n- Adjusting brightness, color, or color temperature\n\n## When NOT to Use\n\n❌ **DON'T use this skill when:**\n\n- Non-Hue smart devices (other brands) → not supported\n- HomeKit scenes or Shortcuts → use Apple's ecosystem\n- TV or entertainme"
+    },
+    {
+      "name": "oracle",
+      "description": "Best practices for using the oracle CLI (prompt + file bundling, engines, sessions, and file attachment patterns).",
+      "source": "built-in",
+      "dirName": "oracle",
+      "content": "# oracle — best use\n\nOracle bundles your prompt + selected files into one “one-shot” request so another model can answer with real repo context (API or browser automation). Treat output as advisory: verify against code + tests.\n\n## Main use case (browser, GPT‑5.2 Pro)\n\nDefault workflow here: `--engine browser` with GPT‑5.2 Pro in ChatGPT. This is the common “long think” path: ~10 minutes to ~1 hour is normal; expect a stored session you can reattach to.\n\nRecommended defaults:\n\n- Engine: browser "
+    },
+    {
+      "name": "ordercli",
+      "description": "Foodora-only CLI for checking past orders and active order status (Deliveroo WIP).",
+      "source": "built-in",
+      "dirName": "ordercli",
+      "content": "# ordercli\n\nUse `ordercli` to check past orders and track active order status (Foodora only right now).\n\nQuick start (Foodora)\n\n- `ordercli foodora countries`\n- `ordercli foodora config set --country AT`\n- `ordercli foodora login --email you@example.com --password-stdin`\n- `ordercli foodora orders`\n- `ordercli foodora history --limit 20`\n- `ordercli foodora history show <orderCode>`\n\nOrders\n\n- Active list (arrival/status): `ordercli foodora orders`\n- Watch: `ordercli foodora orders --watch`\n- Ac"
+    },
+    {
+      "name": "peekaboo",
+      "description": "Capture and automate macOS UI with the Peekaboo CLI.",
+      "source": "built-in",
+      "dirName": "peekaboo",
+      "content": "# Peekaboo\n\nPeekaboo is a full macOS UI automation CLI: capture/inspect screens, target UI\nelements, drive input, and manage apps/windows/menus. Commands share a snapshot\ncache and support `--json`/`-j` for scripting. Run `peekaboo` or\n`peekaboo <cmd> --help` for flags; `peekaboo --version` prints build metadata.\nTip: run via `polter peekaboo` to ensure fresh builds.\n\n## Features (all CLI capabilities, excluding agent/MCP)\n\nCore\n\n- `bridge`: inspect Peekaboo Bridge host connectivity\n- `capture`:"
+    },
+    {
+      "name": "sag",
+      "description": "ElevenLabs text-to-speech with mac-style say UX.",
+      "source": "built-in",
+      "dirName": "sag",
+      "content": "# sag\n\nUse `sag` for ElevenLabs TTS with local playback.\n\nAPI key (required)\n\n- `ELEVENLABS_API_KEY` (preferred)\n- `SAG_API_KEY` also supported by the CLI\n\nQuick start\n\n- `sag \"Hello there\"`\n- `sag speak -v \"Roger\" \"Hello\"`\n- `sag voices`\n- `sag prompting` (model-specific tips)\n\nModel notes\n\n- Default: `eleven_v3` (expressive)\n- Stable: `eleven_multilingual_v2`\n- Fast: `eleven_flash_v2_5`\n\nPronunciation + delivery rules\n\n- First fix: respell (e.g. \"key-note\"), add hyphens, adjust casing.\n- Numbe"
+    },
+    {
+      "name": "session-logs",
+      "description": "Search and analyze your own session logs (older/parent conversations) using jq.",
+      "source": "built-in",
+      "dirName": "session-logs",
+      "content": "# session-logs\n\nSearch your complete conversation history stored in session JSONL files. Use this when a user references older/parent conversations or asks what was said before.\n\n## Trigger\n\nUse this skill when the user asks about prior chats, parent conversations, or historical context that isn't in memory files.\n\n## Location\n\nSession logs live at: `~/.openclaw/agents/<agentId>/sessions/` (use the `agent=<id>` value from the system prompt Runtime line).\n\n- **`sessions.json`** - Index mapping se"
+    },
+    {
+      "name": "sherpa-onnx-tts",
+      "description": "Local text-to-speech via sherpa-onnx (offline, no cloud)",
+      "source": "built-in",
+      "dirName": "sherpa-onnx-tts",
+      "content": "# sherpa-onnx-tts\n\nLocal TTS using the sherpa-onnx offline CLI.\n\n## Install\n\n1. Download the runtime for your OS (extracts into `~/.openclaw/tools/sherpa-onnx-tts/runtime`)\n2. Download a voice model (extracts into `~/.openclaw/tools/sherpa-onnx-tts/models`)\n\nUpdate `~/.openclaw/openclaw.json`:\n\n```json5\n{\n  skills: {\n    entries: {\n      \"sherpa-onnx-tts\": {\n        env: {\n          SHERPA_ONNX_RUNTIME_DIR: \"~/.openclaw/tools/sherpa-onnx-tts/runtime\",\n          SHERPA_ONNX_MODEL_DIR: \"~/.opencla"
+    },
+    {
+      "name": "skill-creator",
+      "description": "Create or update AgentSkills. Use when designing, structuring, or packaging skills with scripts, references, and assets.",
+      "source": "built-in",
+      "dirName": "skill-creator",
+      "content": "# Skill Creator\n\nThis skill provides guidance for creating effective skills.\n\n## About Skills\n\nSkills are modular, self-contained packages that extend Codex's capabilities by providing\nspecialized knowledge, workflows, and tools. Think of them as \"onboarding guides\" for specific\ndomains or tasks—they transform Codex from a general-purpose agent into a specialized agent\nequipped with procedural knowledge that no model can fully possess.\n\n### What Skills Provide\n\n1. Specialized workflows - Multi-s"
+    },
+    {
+      "name": "slack",
+      "description": "Use when you need to control Slack from OpenClaw via the slack tool, including reacting to messages or pinning/unpinning items in Slack channels or DMs.",
+      "source": "built-in",
+      "dirName": "slack",
+      "content": "# Slack Actions\n\n## Overview\n\nUse `slack` to react, manage pins, send/edit/delete messages, and fetch member info. The tool uses the bot token configured for OpenClaw.\n\n## Inputs to collect\n\n- `channelId` and `messageId` (Slack message timestamp, e.g. `1712023032.1234`).\n- For reactions, an `emoji` (Unicode or `:name:`).\n- For message sends, a `to` target (`channel:<id>` or `user:<id>`) and `content`.\n\nMessage context lines include `slack message id` and `channel` fields you can reuse directly.\n"
+    },
+    {
+      "name": "songsee",
+      "description": "Generate spectrograms and feature-panel visualizations from audio with the songsee CLI.",
+      "source": "built-in",
+      "dirName": "songsee",
+      "content": "# songsee\n\nGenerate spectrograms + feature panels from audio.\n\nQuick start\n\n- Spectrogram: `songsee track.mp3`\n- Multi-panel: `songsee track.mp3 --viz spectrogram,mel,chroma,hpss,selfsim,loudness,tempogram,mfcc,flux`\n- Time slice: `songsee track.mp3 --start 12.5 --duration 8 -o slice.jpg`\n- Stdin: `cat track.mp3 | songsee - --format png -o out.png`\n\nCommon flags\n\n- `--viz` list (repeatable or comma-separated)\n- `--style` palette (classic, magma, inferno, viridis, gray)\n- `--width` / `--height` o"
+    },
+    {
+      "name": "sonoscli",
+      "description": "Control Sonos speakers (discover/status/play/volume/group).",
+      "source": "built-in",
+      "dirName": "sonoscli",
+      "content": "# Sonos CLI\n\nUse `sonos` to control Sonos speakers on the local network.\n\nQuick start\n\n- `sonos discover`\n- `sonos status --name \"Kitchen\"`\n- `sonos play|pause|stop --name \"Kitchen\"`\n- `sonos volume set 15 --name \"Kitchen\"`\n\nCommon tasks\n\n- Grouping: `sonos group status|join|unjoin|party|solo`\n- Favorites: `sonos favorites list|open`\n- Queue: `sonos queue list|play|clear`\n- Spotify search (via SMAPI): `sonos smapi search --service \"Spotify\" --category tracks \"query\"`\n\nNotes\n\n- If SSDP fails, spe"
+    },
+    {
+      "name": "spotify-player",
+      "description": "Terminal Spotify playback/search via spogo (preferred) or spotify_player.",
+      "source": "built-in",
+      "dirName": "spotify-player",
+      "content": "# spogo / spotify_player\n\nUse `spogo` **(preferred)** for Spotify playback/search. Fall back to `spotify_player` if needed.\n\nRequirements\n\n- Spotify Premium account.\n- Either `spogo` or `spotify_player` installed.\n\nspogo setup\n\n- Import cookies: `spogo auth import --browser chrome`\n\nCommon CLI commands\n\n- Search: `spogo search track \"query\"`\n- Playback: `spogo play|pause|next|prev`\n- Devices: `spogo device list`, `spogo device set \"<name|id>\"`\n- Status: `spogo status`\n\nspotify_player commands (f"
+    },
+    {
+      "name": "summarize",
+      "description": "Summarize or extract text/transcripts from URLs, podcasts, and local files (great fallback for “transcribe this YouTube/video”).",
+      "source": "built-in",
+      "dirName": "summarize",
+      "content": "# Summarize\n\nFast CLI to summarize URLs, local files, and YouTube links.\n\n## When to use (trigger phrases)\n\nUse this skill immediately when the user asks any of:\n\n- “use summarize.sh”\n- “what’s this link/video about?”\n- “summarize this URL/article”\n- “transcribe this YouTube/video” (best-effort transcript extraction; no `yt-dlp` needed)\n\n## Quick start\n\n```bash\nsummarize \"https://example.com\" --model google/gemini-3-flash-preview\nsummarize \"/path/to/file.pdf\" --model google/gemini-3-flash-previe"
+    },
+    {
+      "name": "things-mac",
+      "description": "Manage Things 3 via the `things` CLI on macOS (add/update projects+todos via URL scheme; read/search/list from the local Things database). Use when a user asks OpenClaw to add a task to Things, list inbox/today/upcoming, search tasks, or inspect projects/areas/tags.",
+      "source": "built-in",
+      "dirName": "things-mac",
+      "content": "# Things 3 CLI\n\nUse `things` to read your local Things database (inbox/today/search/projects/areas/tags) and to add/update todos via the Things URL scheme.\n\nSetup\n\n- Install (recommended, Apple Silicon): `GOBIN=/opt/homebrew/bin go install github.com/ossianhempel/things3-cli/cmd/things@latest`\n- If DB reads fail: grant **Full Disk Access** to the calling app (Terminal for manual runs; `OpenClaw.app` for gateway runs).\n- Optional: set `THINGSDB` (or pass `--db`) to point at your `ThingsData-*` fo"
+    },
+    {
+      "name": "tmux",
+      "description": "Remote-control tmux sessions for interactive CLIs by sending keystrokes and scraping pane output.",
+      "source": "built-in",
+      "dirName": "tmux",
+      "content": "# tmux Session Control\n\nControl tmux sessions by sending keystrokes and reading output. Essential for managing Claude Code sessions.\n\n## When to Use\n\n✅ **USE this skill when:**\n\n- Monitoring Claude/Codex sessions in tmux\n- Sending input to interactive terminal applications\n- Scraping output from long-running processes in tmux\n- Navigating tmux panes/windows programmatically\n- Checking on background work in existing sessions\n\n## When NOT to Use\n\n❌ **DON'T use this skill when:**\n\n- Running one-off"
+    },
+    {
+      "name": "trello",
+      "description": "Manage Trello boards, lists, and cards via the Trello REST API.",
+      "source": "built-in",
+      "dirName": "trello",
+      "content": "# Trello Skill\n\nManage Trello boards, lists, and cards directly from OpenClaw.\n\n## Setup\n\n1. Get your API key: https://trello.com/app-key\n2. Generate a token (click \"Token\" link on that page)\n3. Set environment variables:\n   ```bash\n   export TRELLO_API_KEY=\"your-api-key\"\n   export TRELLO_TOKEN=\"your-token\"\n   ```\n\n## Usage\n\nAll commands use curl to hit the Trello REST API.\n\n### List boards\n\n```bash\ncurl -s \"https://api.trello.com/1/members/me/boards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN\" | jq"
+    },
+    {
+      "name": "video-frames",
+      "description": "Extract frames or short clips from videos using ffmpeg.",
+      "source": "built-in",
+      "dirName": "video-frames",
+      "content": "# Video Frames (ffmpeg)\n\nExtract a single frame from a video, or create quick thumbnails for inspection.\n\n## Quick start\n\nFirst frame:\n\n```bash\n{baseDir}/scripts/frame.sh /path/to/video.mp4 --out /tmp/frame.jpg\n```\n\nAt a timestamp:\n\n```bash\n{baseDir}/scripts/frame.sh /path/to/video.mp4 --time 00:00:10 --out /tmp/frame-10s.jpg\n```\n\n## Notes\n\n- Prefer `--time` for “what is happening around here?”.\n- Use a `.jpg` for quick share; use `.png` for crisp UI frames."
+    },
+    {
+      "name": "voice-call",
+      "description": "Start voice calls via the OpenClaw voice-call plugin.",
+      "source": "built-in",
+      "dirName": "voice-call",
+      "content": "# Voice Call\n\nUse the voice-call plugin to start or inspect calls (Twilio, Telnyx, Plivo, or mock).\n\n## CLI\n\n```bash\nopenclaw voicecall call --to \"+15555550123\" --message \"Hello from OpenClaw\"\nopenclaw voicecall status --call-id <id>\n```\n\n## Tool\n\nUse `voice_call` for agent-initiated calls.\n\nActions:\n\n- `initiate_call` (message, to?, mode?)\n- `continue_call` (callId, message)\n- `speak_to_user` (callId, message)\n- `end_call` (callId)\n- `get_status` (callId)\n\nNotes:\n\n- Requires the voice-call plug"
+    },
+    {
+      "name": "wacli",
+      "description": "Send WhatsApp messages to other people or search/sync WhatsApp history via the wacli CLI (not for normal user chats).",
+      "source": "built-in",
+      "dirName": "wacli",
+      "content": "# wacli\n\nUse `wacli` only when the user explicitly asks you to message someone else on WhatsApp or when they ask to sync/search WhatsApp history.\nDo NOT use `wacli` for normal user chats; OpenClaw routes WhatsApp conversations automatically.\nIf the user is chatting with you on WhatsApp, you should not reach for this tool unless they ask you to contact a third party.\n\nSafety\n\n- Require explicit recipient + message text.\n- Confirm recipient + message before sending.\n- If anything is ambiguous, ask"
+    },
+    {
+      "name": "weather",
+      "description": "Get current weather and forecasts via wttr.in or Open-Meteo. Use when: user asks about weather, temperature, or forecasts for any location. NOT for: historical weather data, severe weather alerts, or detailed meteorological analysis. No API key needed.",
+      "source": "built-in",
+      "dirName": "weather",
+      "content": "# Weather Skill\n\nGet current weather conditions and forecasts.\n\n## When to Use\n\n✅ **USE this skill when:**\n\n- \"What's the weather?\"\n- \"Will it rain today/tomorrow?\"\n- \"Temperature in [city]\"\n- \"Weather forecast for the week\"\n- Travel planning weather checks\n\n## When NOT to Use\n\n❌ **DON'T use this skill when:**\n\n- Historical weather data → use weather archives/APIs\n- Climate analysis or trends → use specialized data sources\n- Hyper-local microclimate data → use local sensors\n- Severe weather aler"
+    }
+  ]
+}

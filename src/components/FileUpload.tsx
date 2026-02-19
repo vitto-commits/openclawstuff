@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { apiJson, apiFetch } from '@/lib/api';
 
 export default function FileUpload() {
   const [files, setFiles] = useState<any[]>([]);
@@ -11,8 +12,10 @@ export default function FileUpload() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
-    const res = await fetch('/api/uploads');
-    setFiles(await res.json());
+    try {
+      const data = await apiJson<any[]>('/api/files');
+      setFiles(data);
+    } catch {}
   };
   useEffect(() => { load(); }, []);
 
@@ -21,16 +24,17 @@ export default function FileUpload() {
     for (const file of Array.from(fileList)) {
       const fd = new FormData();
       fd.append('file', file);
-      await fetch('/api/uploads', { method: 'POST', body: fd });
+      try {
+        await apiFetch('/api/files', { method: 'POST', body: fd });
+      } catch {}
     }
     setUploading(false);
     load();
   };
 
   const deleteFile = async (name: string) => {
-    await fetch('/api/uploads', {
+    await apiJson('/api/files', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name }),
     });
     load();

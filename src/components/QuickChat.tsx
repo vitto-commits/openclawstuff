@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeInUp } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 export default function QuickChat({ agents }: { agents: any[] }) {
   const [agent, setAgent] = useState('');
@@ -11,23 +12,25 @@ export default function QuickChat({ agents }: { agents: any[] }) {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    fetch('/api/chat').then(r => r.json()).then((items: any[]) => {
-      setHistory(items.reverse().slice(0, 50));
-    }).catch(() => {});
+    apiJson<any[]>('/api/chat')
+      .then((items: any[]) => {
+        setHistory(items.reverse().slice(0, 50));
+      })
+      .catch(() => {});
   }, []);
 
   const send = async () => {
     if (!agent || !message.trim()) return;
     setSending(true);
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agent, message }),
-    });
-    const data = await res.json();
-    if (data.entry) {
-      setHistory(prev => [data.entry, ...prev]);
-    }
+    try {
+      const data = await apiJson<any>('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({ agent, message }),
+      });
+      if (data.entry) {
+        setHistory(prev => [data.entry, ...prev]);
+      }
+    } catch {}
     setMessage('');
     setSending(false);
   };

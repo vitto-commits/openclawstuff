@@ -14,6 +14,7 @@ import QuickChat from '@/components/QuickChat';
 import CronManager from '@/components/CronManager';
 import Journal from '@/components/Journal';
 import { pageTransition } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 type Tab = 'tasks' | 'board' | 'agents' | 'activity' | 'journal' | 'costs' | 'files' | 'memory' | 'chat' | 'cron';
 
@@ -48,8 +49,10 @@ export default function Home() {
   const [agents, setAgents] = useState<any[]>([]);
 
   const fetchAgents = useCallback(async () => {
-    const res = await fetch('/api/agents');
-    setAgents(await res.json());
+    try {
+      const data = await apiJson<any[]>('/api/agents');
+      setAgents(data);
+    } catch {}
   }, []);
 
   useEffect(() => { fetchAgents(); }, [fetchAgents]);

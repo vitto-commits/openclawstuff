@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 const STATUS_STYLE: Record<string, { dot: string; label: string }> = {
   online: { dot: 'bg-green-400', label: 'Online' },
@@ -24,9 +25,8 @@ function timeAgo(dateStr: string): string {
 export default function AgentPanel({ agents, onRefresh }: { agents: any[]; onRefresh: () => void }) {
   const toggleStatus = async (agent: any) => {
     const next = agent.status === 'online' ? 'offline' : 'online';
-    await fetch('/api/agents', {
+    await apiJson('/api/agents', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: agent.id, status: next, last_active: next === 'online' ? new Date().toISOString() : agent.last_active }),
     });
     onRefresh();

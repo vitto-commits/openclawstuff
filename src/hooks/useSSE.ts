@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
+import { buildApiUrl } from '@/lib/api';
 
 type SSEEventHandler = (data: any) => void;
 
@@ -41,7 +42,7 @@ export function useSSE({ handlers, pollInterval = 15000, pollFallbacks }: UseSSE
 
     const connect = () => {
       if (cancelled) return;
-      es = new EventSource('/api/events');
+      es = new EventSource(buildApiUrl('/api/events'));
 
       es.onopen = () => {
         stopPolling();

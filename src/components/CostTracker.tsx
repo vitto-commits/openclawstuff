@@ -5,13 +5,16 @@ import { motion } from 'framer-motion';
 import { useSSE } from '@/hooks/useSSE';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import AnimatedCounter from './AnimatedCounter';
+import { apiJson } from '@/lib/api';
 
 export default function CostTracker() {
   const [data, setData] = useState<{ byModel: any[]; bySession: any[] }>({ byModel: [], bySession: [] });
 
   const load = useCallback(async () => {
-    const res = await fetch('/api/costs');
-    setData(await res.json());
+    try {
+      const data = await apiJson<{ byModel: any[]; bySession: any[] }>('/api/costs');
+      setData(data);
+    } catch {}
   }, []);
 
   useEffect(() => { load(); }, [load]);

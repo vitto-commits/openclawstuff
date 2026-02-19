@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeInUp, overlayVariants } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 interface CronJob {
   id: string;
@@ -43,30 +44,30 @@ export default function CronManager() {
   const [form, setForm] = useState({ name: '', scheduleType: 'cron', scheduleValue: '', scheduleHuman: '', description: '', enabled: true });
 
   const fetchJobs = useCallback(async () => {
-    const res = await fetch('/api/cron');
-    setJobs(await res.json());
+    try {
+      const data = await apiJson<CronJob[]>('/api/cron');
+      setJobs(data);
+    } catch {}
   }, []);
 
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
 
   const toggle = async (job: CronJob) => {
-    await fetch('/api/cron', {
+    await apiJson('/api/cron', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: job.id, enabled: !job.enabled }),
     });
     fetchJobs();
   };
 
   const deleteJob = async (id: string) => {
-    await fetch(`/api/cron?id=${id}`, { method: 'DELETE' });
+    await apiJson(`/api/cron?id=${id}`, { method: 'DELETE' });
     fetchJobs();
   };
 
   const createJob = async () => {
-    await fetch('/api/cron', {
+    await apiJson('/api/cron', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
     setForm({ name: '', scheduleType: 'cron', scheduleValue: '', scheduleHuman: '', description: '', enabled: true });

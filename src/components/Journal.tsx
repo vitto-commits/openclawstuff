@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useSSE } from '@/hooks/useSSE';
 import { fadeInUp, staggerContainer, staggerContainerSlow, popIn } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 interface NarrativeJournal {
   date: string;
@@ -47,9 +48,8 @@ export default function Journal() {
 
   const fetchJournal = useCallback(async () => {
     try {
-      const res = await fetch(`/api/journal?date=${date}`);
-      const d = await res.json();
-      setData(d);
+      const data = await apiJson<NarrativeJournal>(`/api/journal?date=${date}`);
+      setData(data);
     } catch {} finally { setLoading(false); }
   }, [date]);
 

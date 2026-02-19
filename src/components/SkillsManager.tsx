@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 interface Skill {
   name: string;
@@ -19,9 +20,9 @@ export default function SkillsManager() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    fetch('/api/skills')
-      .then(r => r.json())
-      .then(d => { setCustom(d.custom); setBuiltin(d.builtin); });
+    apiJson<{ custom: Skill[]; builtin: Skill[] }>('/api/skills')
+      .then(d => { setCustom(d.custom); setBuiltin(d.builtin); })
+      .catch(() => {});
   }, []);
 
   const toggle = (key: string) => setExpanded(expanded === key ? null : key);

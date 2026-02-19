@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeIn } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 interface MemFile { name: string; path: string; size: number; modified: string; category: string; }
 
@@ -13,15 +14,16 @@ export default function MemoryViewer() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/memory').then(r => r.json()).then(setFiles);
+    apiJson<MemFile[]>('/api/memory').then(setFiles).catch(() => {});
   }, []);
 
   const openFile = async (filePath: string) => {
     setLoading(true);
     setSelected(filePath);
-    const res = await fetch(`/api/memory?file=${encodeURIComponent(filePath)}`);
-    const data = await res.json();
-    setContent(data.content || data.error || '');
+    try {
+      const data = await apiJson<any>(`/api/memory?file=${encodeURIComponent(filePath)}`);
+      setContent(data.content || data.error || '');
+    } catch {}
     setLoading(false);
   };
 

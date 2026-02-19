@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSSE } from '@/hooks/useSSE';
 import { fadeInUp, staggerContainer, popIn, overlayVariants, modalVariants } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 interface TodoItem {
   id: string;
@@ -91,8 +92,8 @@ export default function KanbanBoard() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch('/api/tasks');
-      setData(await res.json());
+      const data = await apiJson<TaskData>('/api/tasks');
+      setData(data);
     } catch {}
   }, []);
 
@@ -106,9 +107,8 @@ export default function KanbanBoard() {
 
   const addTodo = async () => {
     if (!form.title.trim()) return;
-    await fetch('/api/tasks', {
+    await apiJson('/api/tasks', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
     setForm({ title: '', description: '' });
@@ -117,9 +117,8 @@ export default function KanbanBoard() {
   };
 
   const deleteTodo = async (id: string) => {
-    await fetch('/api/tasks', {
+    await apiJson('/api/tasks', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
     load();

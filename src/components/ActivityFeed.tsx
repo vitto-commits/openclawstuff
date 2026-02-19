@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSSE } from '@/hooks/useSSE';
 import { fadeInDown } from '@/lib/animations';
+import { apiJson } from '@/lib/api';
 
 const LEVEL_STYLE: Record<string, string> = {
   info: 'bg-blue-50 text-blue-700',
@@ -18,8 +19,10 @@ export default function ActivityFeed() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch('/api/activity?limit=100');
-    setItems(await res.json());
+    try {
+      const data = await apiJson<any[]>('/api/activity?limit=100');
+      setItems(data);
+    } catch {}
     setLoading(false);
   }, []);
 

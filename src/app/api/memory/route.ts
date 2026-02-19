@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import memoryCache from '@/data/memory-cache.json';
+import memoryCache from '../../../data/memory-cache.json';
 
 const WORKSPACE = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'workspace');
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import skillsCache from '@/data/skills-cache.json';
+import skillsCache from '../../../data/skills-cache.json';
 
 const CUSTOM_SKILLS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'skills');
 const BUILTIN_SKILLS_DIR = path.join(process.env.HOME || '/home/vtto', '.npm-global', 'lib', 'node_modules', 'openclaw', 'skills');

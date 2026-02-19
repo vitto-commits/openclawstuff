@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import memoryCache from '@/data/memory-cache.json';
 
 const WORKSPACE = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'workspace');
 
@@ -19,6 +20,11 @@ export async function GET(req: NextRequest) {
       const content = fs.readFileSync(safePath, 'utf-8');
       return NextResponse.json({ path: file, content });
     } catch {
+      // Fallback to cache contents when local filesystem unavailable (Vercel)
+      const cache = memoryCache as { files: unknown[]; contents?: Record<string, string> };
+      if (cache.contents && cache.contents[file]) {
+        return NextResponse.json({ path: file, content: cache.contents[file], from_cache: true });
+      }
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
   }
@@ -50,12 +56,13 @@ export async function GET(req: NextRequest) {
       .forEach(f => addFile(path.join(memDir, f), 'memory'));
   }
 
-  // If no files found, likely running on Vercel (no local filesystem)
+  // If no files found, likely running on Vercel (no local filesystem) — use cache
   if (files.length === 0) {
+    const cache = memoryCache as { files: typeof files; contents?: Record<string, string> };
     return NextResponse.json({
-      files: [],
-      local_only: true,
-      message: 'Memory files are only visible when running locally. Vercel does not have access to the local workspace.'
+      files: cache.files || [],
+      local_only: false,
+      from_cache: true,
     });
   }
 

@@ -80,10 +80,41 @@ async function fetchSupabase(method: string, path: string, body?: any) {
   return JSON.parse(text);
 }
 
+const STALE_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes
+
 async function getSupabaseTasks() {
   try {
     const tasks = await fetchSupabase('GET', '/tasks?select=*&order=created_at.desc');
     if (!Array.isArray(tasks)) return { todo: [], in_progress: [], done: [] };
+
+    // Auto-mark stale in_progress tasks as done
+    const now = Date.now();
+    const staleIds: string[] = [];
+    for (const t of tasks as SupabaseTask[]) {
+      if (t.status === 'in_progress') {
+        const age = now - new Date(t.created_at).getTime();
+        if (age > STALE_THRESHOLD_MS) {
+          staleIds.push(t.id);
+        }
+      }
+    }
+
+    // Update stale tasks in Supabase (fire-and-forget, don't block response)
+    if (staleIds.length > 0) {
+      const completedAt = new Date().toISOString();
+      fetchSupabase('PATCH', `/tasks?id=in.(${staleIds.join(',')})`, {
+        status: 'done',
+        completed_at: completedAt,
+      }).catch(err => console.error('Failed to auto-mark stale tasks as done:', err));
+
+      // Update local array for this response
+      for (const t of tasks as SupabaseTask[]) {
+        if (staleIds.includes(t.id)) {
+          t.status = 'done';
+          t.completed_at = completedAt;
+        }
+      }
+    }
 
     const todoItems = tasks
       .filter((t: SupabaseTask) => t.status === 'todo')
@@ -253,6 +284,18 @@ function parseSessionFiles(): AgentTask[] {
         duration,
         sessionId: file.replace('.jsonl', ''),
       });
+    }
+  }
+
+  // Auto-mark stale in_progress tasks as done (local parser)
+  const now = Date.now();
+  for (const t of tasks) {
+    if (t.status === 'in_progress') {
+      const age = now - new Date(t.spawned_at).getTime();
+      if (age > STALE_THRESHOLD_MS) {
+        t.status = 'done';
+        t.completed_at = new Date().toISOString();
+      }
     }
   }
 

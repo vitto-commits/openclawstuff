@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import skillsCache from '@/data/skills-cache.json';
 
 const CUSTOM_SKILLS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'skills');
 const BUILTIN_SKILLS_DIR = path.join(process.env.HOME || '/home/vtto', '.npm-global', 'lib', 'node_modules', 'openclaw', 'skills');
@@ -55,13 +56,14 @@ export async function GET() {
   const custom = scanDir(CUSTOM_SKILLS_DIR, 'custom');
   const builtin = scanDir(BUILTIN_SKILLS_DIR, 'built-in');
   
-  // If no skills found, likely running on Vercel (no local filesystem)
+  // If no skills found, likely running on Vercel (no local filesystem) — use cache
   if (custom.length === 0 && builtin.length === 0) {
+    const cache = skillsCache as { custom: typeof custom; builtin: typeof builtin };
     return NextResponse.json({
-      custom: [],
-      builtin: [],
-      local_only: true,
-      message: 'Skills are only visible when running locally. Vercel does not have access to local skill directories.'
+      custom: cache.custom || [],
+      builtin: cache.builtin || [],
+      local_only: false,
+      from_cache: true,
     });
   }
   

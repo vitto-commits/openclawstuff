@@ -179,13 +179,18 @@ export async function GET() {
   if (useSupabase) {
     try {
       const agents = await getSupabaseAgents();
+      // Return ONLY Supabase data — never fall through to local parser when Supabase succeeds
+      // (falling through causes duplicate agents like "Otto" + "Main Agent")
       return NextResponse.json(agents);
     } catch (error) {
       console.error('Supabase fetch failed, falling back to local files:', error);
+      // Only reach local parser on actual Supabase failure
+      const agents = parseSessionFiles();
+      return NextResponse.json(agents);
     }
   }
 
-  // Fallback to local files
+  // No Supabase configured — use local files
   const agents = parseSessionFiles();
   return NextResponse.json(agents);
 }

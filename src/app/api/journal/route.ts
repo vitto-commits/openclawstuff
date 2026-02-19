@@ -498,16 +498,12 @@ function isJournalEntryEmpty(data: NarrativeJournal): boolean {
   );
 }
 
-function placeholderJournal(targetDate: string): NarrativeJournal {
+function emptyJournal(targetDate: string): NarrativeJournal {
   return {
     date: targetDate,
     dayLabel: formatDayLabel(targetDate),
-    tags: ['dashboard', 'api', 'subagents'],
-    accomplishments: [
-      'Maintained agent dashboard and Vercel deployment',
-      'Processed subagent tasks and session data',
-      'Kept Supabase data in sync with local sessions',
-    ],
+    tags: [],
+    accomplishments: [],
     problems: [],
     struggles: [],
     stats: {
@@ -517,6 +513,54 @@ function placeholderJournal(targetDate: string): NarrativeJournal {
       activeTimeMinutes: 0,
     },
   };
+}
+
+// Build journal from Supabase tasks for the given date
+async function buildJournalFromTasks(targetDate: string): Promise<NarrativeJournal | null> {
+  if (!useSupabase) return null;
+  try {
+    const tasks = await fetchSupabase('GET', `/tasks?select=*&created_at=gte.${targetDate}T00:00:00Z&created_at=lt.${targetDate}T23:59:59Z&order=created_at.asc`);
+    if (!Array.isArray(tasks) || tasks.length === 0) return null;
+    
+    const accomplishments = tasks
+      .filter((t: any) => t.status === 'done')
+      .map((t: any) => t.label || t.description || 'Completed task');
+    const problems = tasks
+      .filter((t: any) => t.status === 'failed')
+      .map((t: any) => `**Failed:** ${t.label || 'Unknown task'}`);
+    
+    if (accomplishments.length === 0 && problems.length === 0) return null;
+    
+    const tags = new Set<string>();
+    for (const t of tasks) {
+      const label = (t.label || '').toLowerCase();
+      if (label.includes('dashboard')) tags.add('dashboard');
+      if (label.includes('sidebar')) tags.add('sidebar');
+      if (label.includes('journal')) tags.add('journal');
+      if (label.includes('memory')) tags.add('memory');
+      if (label.includes('skill')) tags.add('skills');
+      if (label.includes('cron')) tags.add('cron');
+      if (label.includes('sse')) tags.add('sse');
+      if (label.includes('chat')) tags.add('chat');
+      if (label.includes('bug')) tags.add('bugfix');
+    }
+    if (tasks.length > 0) tags.add('subagents');
+    
+    return {
+      date: targetDate,
+      dayLabel: formatDayLabel(targetDate),
+      tags: Array.from(tags).slice(0, 12),
+      accomplishments,
+      problems,
+      struggles: [],
+      stats: {
+        totalTokens: 0,
+        totalCost: 0,
+        subagentsSpawned: tasks.length,
+        activeTimeMinutes: 0,
+      },
+    };
+  } catch { return null; }
 }
 
 export async function GET(req: NextRequest) {
@@ -544,10 +588,12 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // On Vercel (no local filesystem) or when no data found — return placeholder
-  const data = parseSessionsForDate(targetDate);
-  if (!isJournalEntryEmpty(data)) {
-    return NextResponse.json(data);
+  // On Vercel — try building journal from Supabase tasks
+  if (useSupabase) {
+    const fromTasks = await buildJournalFromTasks(targetDate);
+    if (fromTasks) return NextResponse.json(fromTasks);
   }
-  return NextResponse.json(placeholderJournal(targetDate));
+
+  // No data for this date
+  return NextResponse.json(emptyJournal(targetDate));
 }

@@ -1,0 +1,27 @@
+{
+  "name": "agent-dashboard-sync-service",
+  "version": "1.0.0",
+  "description": "Sync service that bridges local session files to Supabase",
+  "main": "dist/sync.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/sync.js",
+    "dev": "tsx watch src/sync.ts"
+  },
+  "keywords": [
+    "supabase",
+    "sync",
+    "openclaw"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0"
+  },
+  "type": "module"
+}

@@ -13,12 +13,14 @@ import MemoryViewer from '@/components/MemoryViewer';
 import QuickChat from '@/components/QuickChat';
 import CronManager from '@/components/CronManager';
 import Journal from '@/components/Journal';
+import DashboardOverview from '@/components/DashboardOverview';
 import { pageTransition } from '@/lib/animations';
 import { apiJson } from '@/lib/api';
 
-type Tab = 'tasks' | 'board' | 'agents' | 'activity' | 'journal' | 'costs' | 'files' | 'memory' | 'chat' | 'cron';
+type Tab = 'overview' | 'tasks' | 'board' | 'agents' | 'activity' | 'journal' | 'costs' | 'files' | 'memory' | 'chat' | 'cron';
 
 const tabs: { id: Tab; label: string; icon: string }[] = [
+  { id: 'overview', label: 'Overview', icon: '🏠' },
   { id: 'tasks', label: 'Tasks', icon: '📋' },
   { id: 'board', label: 'Skills', icon: '🧩' },
   { id: 'agents', label: 'Agents', icon: '🤖' },
@@ -31,21 +33,25 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'cron', label: 'Cron', icon: '⏱️' },
 ];
 
-const tabContent: Record<Tab, (props: { agents: any[]; fetchAgents: () => void }) => React.ReactElement> = {
+type TabProps = { agents: any[]; fetchAgents: () => void; setTab: (t: Tab) => void };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const tabContent: Record<Tab, (props: TabProps) => React.ReactElement> = {
+  overview: ({ setTab }: TabProps) => <DashboardOverview onTabChange={(t) => setTab(t as Tab)} />,
   tasks: () => <KanbanBoard />,
   board: () => <SkillsManager />,
-  agents: ({ agents, fetchAgents }) => <AgentPanel agents={agents} onRefresh={fetchAgents} />,
+  agents: ({ agents, fetchAgents }: TabProps) => <AgentPanel agents={agents} onRefresh={fetchAgents} />,
   activity: () => <ActivityFeed />,
   journal: () => <Journal />,
   costs: () => <CostTracker />,
   files: () => <FileUpload />,
   memory: () => <MemoryViewer />,
-  chat: ({ agents }) => <QuickChat agents={agents} />,
+  chat: ({ agents }: TabProps) => <QuickChat agents={agents} />,
   cron: () => <CronManager />,
 };
 
 export default function Home() {
-  const [tab, setTab] = useState<Tab>('tasks');
+  const [tab, setTab] = useState<Tab>('overview');
   const [agents, setAgents] = useState<any[]>([]);
 
   const fetchAgents = useCallback(async () => {
@@ -127,7 +133,7 @@ export default function Home() {
               animate="visible"
               exit="exit"
             >
-              <Content agents={agents} fetchAgents={fetchAgents} />
+              <Content agents={agents} fetchAgents={fetchAgents} setTab={setTab} />
             </motion.div>
           </AnimatePresence>
         </div>

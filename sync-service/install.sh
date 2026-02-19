@@ -10,13 +10,26 @@ echo "🛡️  OpenClaw Agent Sync Installer"
 echo "=================================="
 echo ""
 
-# Prompt for agent info
-read -p "Agent name (e.g. Claude, Aria): " AGENT_NAME
-read -p "Machine name (e.g. work-laptop): " MACHINE_NAME
-read -p "Model (e.g. anthropic/claude-opus-4-6): " AGENT_MODEL
+# Parse arguments or prompt interactively
+AGENT_NAME="${1:-$AGENT_NAME}"
+MACHINE_NAME="${2:-$MACHINE_NAME}"
+AGENT_MODEL="${3:-$AGENT_MODEL}"
+
+# If still empty, try interactive (only works when not piped)
+if [ -z "$AGENT_NAME" ] && [ -t 0 ]; then
+  read -p "Agent name (e.g. Claude, Aria): " AGENT_NAME
+  read -p "Machine name (e.g. work-laptop): " MACHINE_NAME
+  read -p "Model (e.g. anthropic/claude-opus-4-6): " AGENT_MODEL
+fi
 
 if [ -z "$AGENT_NAME" ] || [ -z "$MACHINE_NAME" ]; then
-  echo "❌ Agent name and machine name are required."
+  echo "❌ Usage: install.sh <agent-name> <machine-name> [model]"
+  echo ""
+  echo "   Example: install.sh Claude work-laptop anthropic/claude-opus-4-6"
+  echo ""
+  echo "   Or download and run interactively:"
+  echo "   curl -sLO https://raw.githubusercontent.com/vitto-commits/openclawstuff/main/sync-service/install.sh"
+  echo "   bash install.sh"
   exit 1
 fi
 
@@ -44,10 +57,12 @@ echo "   Machine:  $MACHINE_NAME"
 echo "   Model:    $AGENT_MODEL"
 echo "   Sessions: $SESSIONS_DIR"
 echo ""
-read -p "Continue? (y/n): " CONFIRM
-if [ "$CONFIRM" != "y" ]; then
-  echo "Cancelled."
-  exit 0
+if [ -t 0 ]; then
+  read -p "Continue? (y/n): " CONFIRM
+  if [ "$CONFIRM" != "y" ]; then
+    echo "Cancelled."
+    exit 0
+  fi
 fi
 
 # 1. Install sync service

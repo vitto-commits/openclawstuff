@@ -79,10 +79,30 @@ async function getSupabaseTasks() {
     const tasks = await fetchSupabase('GET', '/tasks?select=*&order=created_at.desc');
     if (!Array.isArray(tasks)) return { todo: [], in_progress: [], done: [] };
 
+    const todoItems = tasks
+      .filter((t: SupabaseTask) => t.status === 'todo')
+      .map((t: SupabaseTask) => ({
+        id: t.id,
+        title: t.label || t.description || 'Untitled',
+        description: t.description || '',
+        created_at: t.created_at,
+      }));
+
+    const mapAgentTask = (t: SupabaseTask) => ({
+      id: t.id,
+      label: t.label || 'Untitled',
+      description: t.description || '',
+      model: t.model || 'unknown',
+      status: t.status as 'in_progress' | 'done' | 'failed',
+      spawned_at: t.created_at,
+      completed_at: t.completed_at,
+      duration: t.duration_seconds ? `${Math.floor(t.duration_seconds / 60)}m ${t.duration_seconds % 60}s` : undefined,
+    });
+
     const grouped = {
-      todo: tasks.filter((t: SupabaseTask) => t.status === 'todo'),
-      in_progress: tasks.filter((t: SupabaseTask) => t.status === 'in_progress'),
-      done: tasks.filter((t: SupabaseTask) => t.status === 'done' || t.status === 'failed'),
+      todo: todoItems,
+      in_progress: tasks.filter((t: SupabaseTask) => t.status === 'in_progress').map(mapAgentTask),
+      done: tasks.filter((t: SupabaseTask) => t.status === 'done' || t.status === 'failed').map(mapAgentTask),
     };
 
     return grouped;

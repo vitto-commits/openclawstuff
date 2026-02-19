@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSSE } from '@/hooks/useSSE';
-import { fadeInUp, staggerContainer, staggerContainerSlow, popIn } from '@/lib/animations';
+import { fadeInUp, staggerContainer, popIn } from '@/lib/animations';
 import { apiJson } from '@/lib/api';
 
 interface NarrativeJournal {
   date: string;
   dayLabel: string;
+  narrative?: string;
   tags: string[];
   accomplishments: string[];
   problems: string[];
@@ -30,8 +31,6 @@ const TAG_COLORS = [
   'bg-cyan-50 text-cyan-600 border-cyan-200',
   'bg-indigo-50 text-indigo-600 border-indigo-200',
   'bg-teal-50 text-teal-600 border-teal-200',
-  'bg-orange-50 text-orange-600 border-orange-200',
-  'bg-pink-50 text-pink-600 border-pink-200',
 ];
 
 function formatActiveTime(minutes: number): string {
@@ -53,6 +52,7 @@ export default function Journal() {
         setData({
           date: raw.date || date,
           dayLabel: raw.dayLabel || date,
+          narrative: raw.narrative || '',
           tags: Array.isArray(raw.tags) ? raw.tags : [],
           accomplishments: Array.isArray(raw.accomplishments) ? raw.accomplishments : [],
           problems: Array.isArray(raw.problems) ? raw.problems : [],
@@ -89,75 +89,72 @@ export default function Journal() {
   if (loading) return (
     <div className="flex items-center justify-center py-20 text-gray-400">
       <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-        Loading journal…
+        Loading…
       </motion.div>
     </div>
   );
+
   if (!data) return <div className="text-gray-400 py-20 text-center">No data available</div>;
 
-  const isEmpty = data.accomplishments.length === 0 && data.problems.length === 0 && data.struggles.length === 0 && data.stats.totalTokens === 0;
+  const isEmpty = !data.narrative && data.accomplishments.length === 0 && data.problems.length === 0;
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Cron note */}
-      <motion.div
-        className="text-xs text-gray-400 mb-6 flex items-center gap-1.5"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-      >
-        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        auto-logged daily at 12:00 AM PHT
-      </motion.div>
-
+    <div className="max-w-2xl mx-auto">
       {/* Date navigation */}
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-10">
         <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => changeDate(-1)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </motion.button>
         <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => changeDate(1)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors" disabled={isToday}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
         </motion.button>
         <input type="date" value={date} onChange={e => setDate(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-500 bg-white" />
         {!isToday && <button onClick={() => setDate(new Date().toISOString().slice(0, 10))} className="text-xs text-blue-500 hover:text-blue-700 font-medium">Today</button>}
         {isToday && (
           <motion.span
             className="text-xs px-2 py-0.5 bg-green-50 text-green-600 rounded-full font-medium border border-green-200"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ repeat: Infinity, duration: 2 }}
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ repeat: Infinity, duration: 2.5 }}
           >Live</motion.span>
         )}
       </div>
 
       {/* Date header */}
-      <motion.h1
-        className="text-4xl font-bold text-gray-900 tracking-tight mb-1"
+      <motion.div
+        key={data.date}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        key={data.date}
-      >{data.dayLabel}</motion.h1>
-      <p className="text-sm text-gray-400 mb-6">Daily Brief</p>
+        className="mb-8"
+      >
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">{data.dayLabel}</h1>
+        <p className="text-sm text-gray-400">Daily Journal</p>
+      </motion.div>
 
       {isEmpty ? (
         <motion.div
-          className="text-center py-20 text-gray-400"
+          className="text-center py-16 text-gray-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <p className="text-4xl mb-3">📓</p>
-          <p>No activity recorded for this day</p>
+          <p className="text-3xl mb-3 opacity-50">📓</p>
+          <p className="text-sm">Nothing happened this day.</p>
         </motion.div>
       ) : (
-        <motion.div variants={staggerContainerSlow} initial="hidden" animate="visible" key={data.date}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          key={data.date}
+        >
           {/* Tags */}
           {data.tags.length > 0 && (
-            <motion.div className="flex flex-wrap gap-2 mb-10" variants={staggerContainer} initial="hidden" animate="visible">
+            <motion.div className="flex flex-wrap gap-2 mb-8" variants={staggerContainer} initial="hidden" animate="visible">
               {data.tags.map((tag, i) => (
                 <motion.span
                   key={tag}
                   variants={popIn}
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full border ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                  className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${TAG_COLORS[i % TAG_COLORS.length]}`}
                 >
                   #{tag}
                 </motion.span>
@@ -165,78 +162,100 @@ export default function Journal() {
             </motion.div>
           )}
 
-          {/* What We Did Today */}
-          {data.accomplishments.length > 0 && (
-            <motion.section className="mb-10" variants={fadeInUp}>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-green-500">✦</span> What We Did Today
-              </h2>
-              <motion.ul className="space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
+          {/* Narrative — the main journal entry */}
+          {data.narrative && (
+            <div className="mb-10 space-y-4">
+              {data.narrative.split('\n\n').map((paragraph, i) => (
+                <motion.p
+                  key={i}
+                  className="text-[15px] leading-relaxed text-gray-700"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 + i * 0.08 }}
+                >
+                  {paragraph}
+                </motion.p>
+              ))}
+            </div>
+          )}
+
+          {/* Fallback: if no narrative, show accomplishments as prose-ish list */}
+          {!data.narrative && data.accomplishments.length > 0 && (
+            <div className="mb-10">
+              <p className="text-[15px] leading-relaxed text-gray-700 mb-4">
+                Completed {data.accomplishments.length} task{data.accomplishments.length !== 1 ? 's' : ''} today:
+              </p>
+              <ul className="space-y-2 ml-1">
                 {data.accomplishments.map((item, i) => (
-                  <motion.li key={i} variants={fadeInUp} className="flex gap-3 text-gray-700 leading-relaxed">
-                    <span className="text-gray-300 mt-0.5 flex-shrink-0">•</span>
+                  <motion.li
+                    key={i}
+                    className="text-[14px] text-gray-600 flex gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 + i * 0.03 }}
+                  >
+                    <span className="text-gray-300">—</span>
                     <span>{item}</span>
                   </motion.li>
                 ))}
-              </motion.ul>
-            </motion.section>
+              </ul>
+            </div>
           )}
 
-          {/* Problems and Solutions */}
+          {/* Problems */}
           {data.problems.length > 0 && (
-            <motion.section className="mb-10" variants={fadeInUp}>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-amber-500">⚡</span> Problems &amp; Solutions
-              </h2>
-              <motion.ul className="space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
-                {data.problems.map((item, i) => (
-                  <motion.li key={i} variants={fadeInUp} className="flex gap-3 text-gray-700 leading-relaxed">
-                    <span className="text-amber-400 mt-0.5 flex-shrink-0">•</span>
-                    <span dangerouslySetInnerHTML={{ __html: item.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') }} />
-                  </motion.li>
-                ))}
-              </motion.ul>
-            </motion.section>
+            <motion.div
+              className="mb-8 border-l-2 border-amber-200 pl-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <p className="text-xs font-medium text-amber-500 uppercase tracking-wide mb-2">Issues</p>
+              {data.problems.map((item, i) => (
+                <p key={i} className="text-sm text-gray-600 mb-1" dangerouslySetInnerHTML={{ __html: item.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') }} />
+              ))}
+            </motion.div>
           )}
 
           {/* Struggles */}
           {data.struggles.length > 0 && (
-            <motion.section className="mb-10" variants={fadeInUp}>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-red-400">🔥</span> Struggles
-              </h2>
-              <motion.ul className="space-y-3" variants={staggerContainer} initial="hidden" animate="visible">
-                {data.struggles.map((item, i) => (
-                  <motion.li key={i} variants={fadeInUp} className="flex gap-3 text-gray-600 leading-relaxed">
-                    <span className="text-red-300 mt-0.5 flex-shrink-0">•</span>
-                    <span>{item}</span>
-                  </motion.li>
-                ))}
-              </motion.ul>
-            </motion.section>
+            <motion.div
+              className="mb-8 border-l-2 border-red-200 pl-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <p className="text-xs font-medium text-red-400 uppercase tracking-wide mb-2">Struggles</p>
+              {data.struggles.map((item, i) => (
+                <p key={i} className="text-sm text-gray-600 mb-1">{item}</p>
+              ))}
+            </motion.div>
           )}
 
-          {/* Stats footer */}
-          <motion.footer className="border-t border-gray-100 pt-6 mt-12" variants={fadeInUp}>
-            <div className="flex flex-wrap gap-6 text-sm text-gray-400">
-              <div className="flex items-center gap-1.5">
-                <span>📊</span>
-                <span>{data.stats.totalTokens.toLocaleString()} tokens</span>
+          {/* Stats footer — subtle */}
+          {(data.stats.subagentsSpawned > 0 || data.stats.totalCost > 0) && (
+            <motion.footer
+              className="border-t border-gray-100 pt-5 mt-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <div className="flex flex-wrap gap-5 text-xs text-gray-400">
+                {data.stats.subagentsSpawned > 0 && (
+                  <span>{data.stats.subagentsSpawned} subagents</span>
+                )}
+                {data.stats.activeTimeMinutes > 0 && (
+                  <span>{formatActiveTime(data.stats.activeTimeMinutes)} compute</span>
+                )}
+                {data.stats.totalTokens > 0 && (
+                  <span>{data.stats.totalTokens.toLocaleString()} tokens</span>
+                )}
+                {data.stats.totalCost > 0 && (
+                  <span>${data.stats.totalCost.toFixed(2)}</span>
+                )}
               </div>
-              <div className="flex items-center gap-1.5">
-                <span>💰</span>
-                <span>${data.stats.totalCost.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span>🤖</span>
-                <span>{data.stats.subagentsSpawned} subagents spawned</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span>⏱️</span>
-                <span>{formatActiveTime(data.stats.activeTimeMinutes)} active</span>
-              </div>
-            </div>
-          </motion.footer>
+            </motion.footer>
+          )}
         </motion.div>
       )}
     </div>

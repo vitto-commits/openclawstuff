@@ -82,6 +82,7 @@ async function getSupabaseJournalEntry(targetDate: string): Promise<NarrativeJou
 interface NarrativeJournal {
   date: string;
   dayLabel: string;
+  narrative?: string;
   tags: string[];
   accomplishments: string[];
   problems: string[];
@@ -515,6 +516,132 @@ function emptyJournal(targetDate: string): NarrativeJournal {
   };
 }
 
+// --- Narrative generation ---
+
+function labelToReadableNarrative(label: string): string {
+  return label.replace(/[-_]/g, ' ').replace(/\bv\d+$/i, '').trim();
+}
+
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  if (m < 60) return s > 0 ? `${m}m ${s}s` : `${m}m`;
+  const h = Math.floor(m / 60);
+  return `${h}h ${m % 60}m`;
+}
+
+interface TaskRecord {
+  label: string;
+  description: string;
+  status: string;
+  duration_seconds: number | null;
+  created_at: string;
+  model?: string;
+}
+
+function groupTasksByTheme(tasks: TaskRecord[]): Record<string, TaskRecord[]> {
+  const groups: Record<string, TaskRecord[]> = {};
+  for (const t of tasks) {
+    const label = (t.label || '').toLowerCase();
+    let theme = 'other';
+    if (label.includes('journal')) theme = 'journal';
+    else if (label.includes('sidebar') || label.includes('scroll') || label.includes('animation')) theme = 'ui-polish';
+    else if (label.includes('sse') || label.includes('live') || label.includes('functional')) theme = 'real-time';
+    else if (label.includes('supabase') || label.includes('sync') || label.includes('api')) theme = 'backend';
+    else if (label.includes('skill')) theme = 'skills';
+    else if (label.includes('cron')) theme = 'cron';
+    else if (label.includes('chat')) theme = 'chat';
+    else if (label.includes('bug') || label.includes('fix')) theme = 'bugfixes';
+    else if (label.includes('dashboard')) theme = 'dashboard';
+    if (!groups[theme]) groups[theme] = [];
+    groups[theme].push(t);
+  }
+  return groups;
+}
+
+const THEME_INTROS: Record<string, string> = {
+  'dashboard': 'Started the day by building out the agent dashboard',
+  'ui-polish': 'Spent time polishing the UI',
+  'real-time': 'Wired up real-time features',
+  'backend': 'Did backend work',
+  'journal': 'Iterated on the journal system',
+  'skills': 'Set up the skills viewer',
+  'cron': 'Added cron job management',
+  'chat': 'Worked on the chat interface',
+  'bugfixes': 'Fixed some bugs along the way',
+  'other': 'Also tackled some other tasks',
+};
+
+function generateNarrative(tasks: TaskRecord[], targetDate: string): string {
+  if (tasks.length === 0) return '';
+  
+  const done = tasks.filter(t => t.status === 'done');
+  const failed = tasks.filter(t => t.status === 'failed');
+  const totalTime = done.reduce((sum, t) => sum + (t.duration_seconds || 0), 0);
+  
+  const paragraphs: string[] = [];
+  
+  // Opening
+  const d = new Date(targetDate + 'T12:00:00');
+  const weekday = d.toLocaleDateString('en-US', { weekday: 'long' });
+  
+  if (done.length >= 10) {
+    paragraphs.push(`Big ${weekday}. Spawned ${done.length} subagents and got a lot done${totalTime > 0 ? ` — about ${formatDuration(totalTime)} of compute time total` : ''}.`);
+  } else if (done.length >= 5) {
+    paragraphs.push(`Productive ${weekday}. Ran ${done.length} tasks${totalTime > 0 ? ` across ${formatDuration(totalTime)} of work` : ''}.`);
+  } else if (done.length > 0) {
+    paragraphs.push(`Quiet ${weekday}. Knocked out ${done.length} task${done.length > 1 ? 's' : ''}.`);
+  }
+  
+  // Group by theme and narrate
+  const groups = groupTasksByTheme(done);
+  const themeOrder = ['dashboard', 'real-time', 'ui-polish', 'skills', 'cron', 'chat', 'journal', 'backend', 'bugfixes', 'other'];
+  
+  for (const theme of themeOrder) {
+    const group = groups[theme];
+    if (!group || group.length === 0) continue;
+    
+    const intro = THEME_INTROS[theme] || 'Worked on';
+    if (group.length === 1) {
+      const t = group[0];
+      const desc = t.description ? extractFirstSentence(t.description) : labelToReadableNarrative(t.label);
+      const dur = t.duration_seconds ? ` (${formatDuration(t.duration_seconds)})` : '';
+      paragraphs.push(`${intro} — ${desc.toLowerCase()}${dur}.`);
+    } else {
+      const items = group.map(t => {
+        const name = labelToReadableNarrative(t.label);
+        const dur = t.duration_seconds ? ` (${formatDuration(t.duration_seconds)})` : '';
+        return `${name}${dur}`;
+      });
+      if (items.length <= 3) {
+        paragraphs.push(`${intro}: ${items.join(', ')}.`);
+      } else {
+        paragraphs.push(`${intro}: ${items.slice(0, 3).join(', ')}, and ${items.length - 3} more.`);
+      }
+    }
+  }
+  
+  // Problems
+  if (failed.length > 0) {
+    const failNames = failed.map(t => labelToReadableNarrative(t.label)).join(', ');
+    paragraphs.push(`Hit some issues with: ${failNames}. Will need another pass.`);
+  }
+  
+  return paragraphs.join('\n\n');
+}
+
+function extractFirstSentence(text: string): string {
+  // Strip markdown and paths
+  let clean = text.replace(/\*\*[^*]+\*\*/g, '').replace(/~\/[\w\-/.]+/g, '').replace(/\/home\/[\w\-/.]+/g, '').trim();
+  // Remove "You are..." preambles
+  clean = clean.replace(/^You are [^.]+\.\s*/i, '');
+  // Take first sentence
+  const match = clean.match(/^[^.!?]+[.!?]/);
+  if (match && match[0].length > 10) return match[0].trim();
+  return clean.substring(0, 120).trim();
+}
+
 // Build journal from Supabase tasks for the given date
 async function buildJournalFromTasks(targetDate: string): Promise<NarrativeJournal | null> {
   if (!useSupabase) return null;
@@ -522,17 +649,27 @@ async function buildJournalFromTasks(targetDate: string): Promise<NarrativeJourn
     const tasks = await fetchSupabase('GET', `/tasks?select=*&created_at=gte.${targetDate}T00:00:00Z&created_at=lt.${targetDate}T23:59:59Z&order=created_at.asc`);
     if (!Array.isArray(tasks) || tasks.length === 0) return null;
     
-    const accomplishments = tasks
-      .filter((t: any) => t.status === 'done')
-      .map((t: any) => t.label || t.description || 'Completed task');
-    const problems = tasks
-      .filter((t: any) => t.status === 'failed')
-      .map((t: any) => `**Failed:** ${t.label || 'Unknown task'}`);
+    const taskRecords: TaskRecord[] = tasks.map((t: any) => ({
+      label: t.label || '',
+      description: t.description || '',
+      status: t.status || 'done',
+      duration_seconds: t.duration_seconds || null,
+      created_at: t.created_at || '',
+      model: t.model || undefined,
+    }));
     
-    if (accomplishments.length === 0 && problems.length === 0) return null;
+    const done = taskRecords.filter(t => t.status === 'done');
+    const failed = taskRecords.filter(t => t.status === 'failed');
+    
+    if (done.length === 0 && failed.length === 0) return null;
+    
+    const accomplishments = done.map(t => t.label || t.description || 'Completed task');
+    const problems = failed.map(t => `**Failed:** ${t.label || 'Unknown task'}`);
+    
+    const narrative = generateNarrative(taskRecords, targetDate);
     
     const tags = new Set<string>();
-    for (const t of tasks) {
+    for (const t of taskRecords) {
       const label = (t.label || '').toLowerCase();
       if (label.includes('dashboard')) tags.add('dashboard');
       if (label.includes('sidebar')) tags.add('sidebar');
@@ -544,11 +681,14 @@ async function buildJournalFromTasks(targetDate: string): Promise<NarrativeJourn
       if (label.includes('chat')) tags.add('chat');
       if (label.includes('bug')) tags.add('bugfix');
     }
-    if (tasks.length > 0) tags.add('subagents');
+    if (taskRecords.length > 0) tags.add('subagents');
+    
+    const totalTime = done.reduce((sum, t) => sum + (t.duration_seconds || 0), 0);
     
     return {
       date: targetDate,
       dayLabel: formatDayLabel(targetDate),
+      narrative,
       tags: Array.from(tags).slice(0, 12),
       accomplishments,
       problems,
@@ -556,8 +696,8 @@ async function buildJournalFromTasks(targetDate: string): Promise<NarrativeJourn
       stats: {
         totalTokens: 0,
         totalCost: 0,
-        subagentsSpawned: tasks.length,
-        activeTimeMinutes: 0,
+        subagentsSpawned: taskRecords.length,
+        activeTimeMinutes: Math.round(totalTime / 60),
       },
     };
   } catch { return null; }

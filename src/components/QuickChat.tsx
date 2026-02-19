@@ -12,8 +12,9 @@ export default function QuickChat({ agents }: { agents: any[] }) {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    apiJson<any[]>('/api/chat')
-      .then((items: any[]) => {
+    apiJson<any>('/api/chat')
+      .then((d: any) => {
+        const items = Array.isArray(d) ? d : d?.items || [];
         setHistory(items.reverse().slice(0, 50));
       })
       .catch(() => {});

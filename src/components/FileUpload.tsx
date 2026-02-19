@@ -13,8 +13,8 @@ export default function FileUpload() {
 
   const load = async () => {
     try {
-      const data = await apiJson<any[]>('/api/files');
-      setFiles(data);
+      const data = await apiJson<any>('/api/files');
+      setFiles(Array.isArray(data) ? data : []);
     } catch {}
   };
   useEffect(() => { load(); }, []);

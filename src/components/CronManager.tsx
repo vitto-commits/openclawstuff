@@ -45,8 +45,8 @@ export default function CronManager() {
 
   const fetchJobs = useCallback(async () => {
     try {
-      const data = await apiJson<CronJob[]>('/api/cron');
-      setJobs(data);
+      const data = await apiJson<any>('/api/cron');
+      setJobs(Array.isArray(data) ? data : []);
     } catch {}
   }, []);
 

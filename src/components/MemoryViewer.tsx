@@ -14,7 +14,7 @@ export default function MemoryViewer() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    apiJson<MemFile[]>('/api/memory').then(setFiles).catch(() => {});
+    apiJson<any>('/api/memory').then(d => setFiles(Array.isArray(d) ? d : d?.files || [])).catch(() => {});
   }, []);
 
   const openFile = async (filePath: string) => {

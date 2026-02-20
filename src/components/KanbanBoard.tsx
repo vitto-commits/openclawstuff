@@ -238,6 +238,8 @@ export default function KanbanBoard() {
           overflow-y: auto;
           overflow-x: hidden;
           scrollbar-width: none;
+          display: flex;
+          flex-direction: column;
         }
         .kanban-column::-webkit-scrollbar {
           display: none;
@@ -247,14 +249,26 @@ export default function KanbanBoard() {
           position: sticky;
           top: 0;
           z-index: 10;
-          padding-bottom: 0.75rem;
-          margin-bottom: 0.75rem;
+          padding: 0.5rem 0;
+          margin-bottom: 1rem;
           border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+          background-color: inherit;
+          flex-shrink: 0;
+        }
+        .kanban-cards {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          flex: 1;
+          min-height: 0;
         }
         @media (max-width: 640px) {
           .kanban-column {
             height: calc(100vh - 280px);
             max-height: calc(100vh - 280px);
+          }
+          .kanban-header {
+            margin-bottom: 0.75rem;
           }
         }
       `}</style>
@@ -272,7 +286,7 @@ export default function KanbanBoard() {
               <h3 className="text-sm font-semibold text-gray-700">{col.label}</h3>
               <span className="text-[11px] text-gray-600 bg-white px-2.5 py-1 rounded-full font-medium flex-shrink-0">{col.count}</span>
             </div>
-            <motion.div className="space-y-2 flex-1" variants={staggerContainer} initial="hidden" animate="visible">
+            <motion.div className="kanban-cards" variants={staggerContainer} initial="hidden" animate="visible">
               <AnimatePresence>
                 {col.id === 'todo' && (col.items as TodoItem[]).map(item => (
                   <motion.div

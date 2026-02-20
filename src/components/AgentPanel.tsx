@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { apiJson } from '@/lib/api';
@@ -20,6 +21,37 @@ function timeAgo(dateStr: string): string {
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
   return `${Math.floor(hrs / 24)}d ago`;
+}
+
+const AGENT_COLORS: Record<string, string> = {
+  otto: 'ring-blue-500',
+  felix: 'ring-amber-500',
+  nova: 'ring-purple-500',
+  pixel: 'ring-pink-500',
+};
+
+function AgentAvatar({ agent }: { agent: any }) {
+  const [imgError, setImgError] = React.useState(false);
+  const avatarUrl = agent.metadata?.avatar;
+  const emoji = agent.metadata?.emoji || '🤖';
+  const colorRing = AGENT_COLORS[agent.name?.toLowerCase()] || 'ring-gray-400';
+
+  if (avatarUrl && !imgError) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={agent.name}
+        className={`w-20 h-20 rounded-full object-cover ring-2 ${colorRing} flex-shrink-0`}
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+
+  return (
+    <div className={`w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-3xl ring-2 ${colorRing} flex-shrink-0`}>
+      {emoji}
+    </div>
+  );
 }
 
 export default function AgentPanel({ agents, onRefresh }: { agents: any[]; onRefresh: () => void }) {
@@ -56,7 +88,7 @@ export default function AgentPanel({ agents, onRefresh }: { agents: any[]; onRef
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg">🤖</div>
+                  <AgentAvatar agent={agent} />
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900">{agent.name}</h3>
                     <p className="text-xs text-gray-400">{agent.id}</p>

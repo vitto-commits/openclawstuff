@@ -9,6 +9,30 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 const useSupabase = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+const AGENT_EMOJIS: Record<string, string> = {
+  otto: '🟦',
+  felix: '⚙️',
+  nova: '🌟',
+  pixel: '🎮',
+};
+
+function getAvatarUrl(agentName: string): string | null {
+  const name = agentName?.toLowerCase() || '';
+  const avatarMap: Record<string, string> = {
+    otto: '/avatars/otto-portrait.png',
+    felix: '/avatars/felix-portrait.png',
+    nova: '/avatars/nova-portrait.png',
+    pixel: '/avatars/pixel-portrait.png',
+  };
+  
+  return avatarMap[name] || null;
+}
+
+function getAgentEmoji(agentName: string): string {
+  const name = agentName?.toLowerCase() || '';
+  return AGENT_EMOJIS[name] || '🤖';
+}
+
 interface AgentInfo {
   id: string;
   name: string;
@@ -68,17 +92,28 @@ async function getSupabaseAgents() {
     const agents = await fetchSupabase('GET', '/agents?select=*&order=last_active.desc');
     if (!Array.isArray(agents)) return [];
 
-    return agents.map((a: SupabaseAgent) => ({
-      id: a.id,
-      name: a.name || 'Unknown Agent',
-      model: a.model || 'unknown',
-      status: a.status || 'offline',
-      last_active: a.last_active || a.created_at || new Date().toISOString(),
-      session: '',
-      provider: a.metadata?.provider || 'unknown',
-      total_sessions: a.metadata?.total_sessions || 0,
-      machine: a.machine,
-    }));
+    return agents.map((a: SupabaseAgent) => {
+      const avatarUrl = getAvatarUrl(a.name);
+      const emoji = getAgentEmoji(a.name);
+      
+      return {
+        id: a.id,
+        name: a.name || 'Unknown Agent',
+        model: a.model || 'unknown',
+        status: a.status || 'offline',
+        last_active: a.last_active || a.created_at || new Date().toISOString(),
+        session: '',
+        provider: a.metadata?.provider || 'unknown',
+        total_sessions: a.metadata?.total_sessions || 0,
+        machine: a.machine,
+        metadata: {
+          avatar: avatarUrl,
+          emoji: emoji,
+          provider: a.metadata?.provider,
+          ...a.metadata,
+        },
+      };
+    });
   } catch (error) {
     console.error('Failed to fetch agents from Supabase:', error);
     throw error;
@@ -166,7 +201,13 @@ function parseSessionFiles(): AgentInfo[] {
     });
   }
   
-  return Array.from(agents.values());
+  return Array.from(agents.values()).map((agent: any) => ({
+    ...agent,
+    metadata: {
+      avatar: getAvatarUrl(agent.name),
+      emoji: getAgentEmoji(agent.name),
+    },
+  }));
 }
 
 function isRecent(timestamp: string): boolean {

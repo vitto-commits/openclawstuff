@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer, popIn } from '@/lib/animations';
 import { apiJson } from '@/lib/api';
@@ -79,6 +79,38 @@ const TAG_COLORS = [
   'bg-rose-50 text-rose-600 border-rose-200',
   'bg-cyan-50 text-cyan-600 border-cyan-200',
 ];
+
+const AGENT_COLORS: Record<string, string> = {
+  otto: 'ring-blue-500',
+  felix: 'ring-amber-500',
+  nova: 'ring-purple-500',
+  pixel: 'ring-pink-500',
+};
+
+function MiniAgentAvatar({ agent }: { agent: Agent }) {
+  const [imgError, setImgError] = useState(false);
+  const avatarUrl = (agent as any).metadata?.avatar;
+  const emoji = (agent as any).metadata?.emoji || '🤖';
+  const colorRing = AGENT_COLORS[agent.name?.toLowerCase()] || 'ring-gray-400';
+
+  if (avatarUrl && !imgError) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={agent.name}
+        className={`w-10 h-10 rounded-full object-cover ring-2 ${colorRing} flex-shrink-0`}
+        onError={() => setImgError(true)}
+        title={agent.name}
+      />
+    );
+  }
+
+  return (
+    <div className={`w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm ring-2 ${colorRing} flex-shrink-0`}>
+      {emoji}
+    </div>
+  );
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -378,28 +410,32 @@ export default function DashboardOverview({
             </div>
 
             {agents.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {agents.map((agent) => (
                   <div
                     key={agent.name}
-                    className="flex items-center gap-3 py-1.5"
+                    className="flex items-center gap-3 py-1"
                   >
-                    <span
-                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                        agent.status === 'online' ? 'bg-green-400' : 'bg-gray-300'
-                      }`}
-                    />
+                    <MiniAgentAvatar agent={agent} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 truncate">{agent.name}</p>
                       {agent.model && (
                         <p className="text-[10px] text-gray-400 truncate">{agent.model}</p>
                       )}
                     </div>
-                    {agent.last_active && (
-                      <span className="text-xs text-gray-400 whitespace-nowrap">
-                        {timeAgo(agent.last_active)}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                          agent.status === 'online' ? 'bg-green-400' : 'bg-gray-300'
+                        }`}
+                        title={agent.status}
+                      />
+                      {agent.last_active && (
+                        <span className="text-xs text-gray-400 whitespace-nowrap">
+                          {timeAgo(agent.last_active)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

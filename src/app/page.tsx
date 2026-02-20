@@ -10,7 +10,7 @@ import ActivityFeed from '@/components/ActivityFeed';
 import CostTracker from '@/components/CostTracker';
 import FileUpload from '@/components/FileUpload';
 import MemoryViewer from '@/components/MemoryViewer';
-import QuickChat from '@/components/QuickChat';
+import MultiAgentChat from '@/components/MultiAgentChat';
 import CronManager from '@/components/CronManager';
 import Journal from '@/components/Journal';
 import DashboardOverview from '@/components/DashboardOverview';
@@ -49,7 +49,7 @@ const tabContent: Record<Tab, (props: TabProps) => React.ReactElement> = {
   costs: () => <CostTracker />,
   files: () => <FileUpload />,
   memory: () => <MemoryViewer />,
-  chat: ({ agents }: TabProps) => <QuickChat agents={agents} />,
+  chat: () => <MultiAgentChat />,
   cron: () => <CronManager />,
 };
 

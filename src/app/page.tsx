@@ -137,7 +137,7 @@ export default function Home() {
       {/* ── Main content ── */}
       <main className="flex-1 md:ml-[200px] min-h-screen">
         {/* Mobile header bar */}
-        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3 pt-[env(safe-area-inset-top)] flex items-center gap-3">
           <div className="w-7 h-7 bg-black rounded-md flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-bold">A</span>
           </div>

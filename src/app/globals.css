@@ -25,6 +25,12 @@ body {
 }
 
 /* Safe area for notch/home bar */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 8px);
+}
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -99,7 +105,13 @@ body {
 }
 
 /* Safe area */
-@supports (padding-bottom: max(0px)) {
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+  .pt-safe {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
   .safe-bottom {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }

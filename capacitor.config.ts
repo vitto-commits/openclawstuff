@@ -10,6 +10,12 @@ const config: CapacitorConfig = {
   },
   android: {
     backgroundColor: '#ffffff'
+  },
+  plugins: {
+    StatusBar: {
+      style: 'DEFAULT',
+      backgroundColor: '#ffffff'
+    }
   }
 };
 

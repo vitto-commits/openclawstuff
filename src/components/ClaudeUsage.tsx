@@ -67,11 +67,11 @@ export default function ClaudeUsage() {
   if (loading) {
     return (
       <motion.div
-        className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8"
+        className="bg-white rounded-lg md:rounded-xl border border-gray-100 shadow-sm p-4 md:p-6 mb-4 md:mb-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <p className="text-gray-400">Loading Claude usage...</p>
+        <p className="text-sm text-gray-400">Loading Claude usage...</p>
       </motion.div>
     );
   }
@@ -79,11 +79,11 @@ export default function ClaudeUsage() {
   if (!usage) {
     return (
       <motion.div
-        className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8"
+        className="bg-white rounded-lg md:rounded-xl border border-gray-100 shadow-sm p-4 md:p-6 mb-4 md:mb-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">Claude Usage</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Claude Usage</h3>
         <p className="text-gray-400 text-sm">
           ⏳ Waiting for first sync...
         </p>
@@ -114,11 +114,11 @@ export default function ClaudeUsage() {
 
   return (
     <motion.div
-      className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8"
+      className="bg-white rounded-lg md:rounded-xl border border-gray-100 shadow-sm p-4 md:p-6 mb-4 md:mb-8"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3 md:mb-4">
         <h3 className="text-sm font-semibold text-gray-700">Claude Usage</h3>
         {usage.minutesAgo !== undefined && (
           <p className="text-xs text-gray-400">
@@ -128,14 +128,14 @@ export default function ClaudeUsage() {
       </div>
 
       <motion.div
-        className="space-y-4"
+        className="space-y-3 md:space-y-4"
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
       >
         {metrics.map((metric, idx) => (
           <motion.div key={idx} variants={fadeInUp}>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-1.5 md:mb-2">
               <label className="text-xs font-medium text-gray-600">
                 {metric.label}
               </label>
@@ -143,7 +143,7 @@ export default function ClaudeUsage() {
                 {metric.percentage !== undefined ? `${metric.percentage}%` : '—'}
               </span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+            <div className="w-full bg-gray-100 rounded-full h-2 md:h-2.5 overflow-hidden">
               <motion.div
                 className={`h-full ${getBarColor(metric.percentage)}`}
                 style={{

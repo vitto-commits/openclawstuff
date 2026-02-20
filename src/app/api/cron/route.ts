@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 const DATA_FILE = path.join(process.env.HOME || '/home/vtto', 'agent-dashboard/data/cron-jobs.json');
 const DATA_DIR = path.dirname(DATA_FILE);
 

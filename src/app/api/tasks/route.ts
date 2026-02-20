@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
+export const dynamic = 'force-dynamic';
+
 const SESSIONS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'agents', 'main', 'sessions');
 const DATA_DIR = path.join(process.env.HOME || '/home/vtto', 'agent-dashboard', 'data');
 const TODO_FILE = path.join(DATA_DIR, 'todo.json');

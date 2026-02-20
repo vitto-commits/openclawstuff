@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 const SESSIONS_DIR = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'agents', 'main', 'sessions');
 const DATA_DIR = path.join(process.env.HOME || '/home/vtto', 'agent-dashboard', 'data');
 

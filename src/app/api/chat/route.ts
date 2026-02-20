@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 const DATA_DIR = path.join(process.env.HOME || '/home/vtto', 'agent-dashboard', 'data');
 const CHAT_LOG = path.join(DATA_DIR, 'chat-log.json');
 

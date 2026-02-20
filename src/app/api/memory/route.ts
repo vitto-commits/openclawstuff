@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import memoryCache from '../../../data/memory-cache.json';
 
+export const dynamic = 'force-dynamic';
+
 const WORKSPACE = path.join(process.env.HOME || '/home/vtto', '.openclaw', 'workspace');
 
 // Files to show in memory viewer

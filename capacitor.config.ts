@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Otto',
   webDir: 'out',
   server: {
-    url: 'https://openclawstuff.vercel.app',
+    url: 'https://otto-dashboard-amber.vercel.app',
     cleartext: false
   },
   android: {

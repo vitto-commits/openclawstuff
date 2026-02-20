@@ -59,15 +59,34 @@ function StatusIcon({ status }: { status: string }) {
   return <span className="text-red-500 text-sm font-bold">✕</span>;
 }
 
+function cleanTaskDescription(desc: string): string {
+  // Replace em dashes with hyphens
+  let cleaned = desc.replace(/—/g, '-');
+  
+  // If description starts with "You are [Agent]", replace with generic message
+  if (/^You are (Felix|Nova|Pixel|[A-Z]\w+) 🔧/.test(cleaned)) {
+    return 'Subagent task';
+  }
+  
+  // Truncate to 120 chars with ellipsis
+  if (cleaned.length > 120) {
+    cleaned = cleaned.substring(0, 120) + '...';
+  }
+  
+  return cleaned;
+}
+
 function AgentTaskCard({ task }: { task: AgentTask }) {
+  const cleanDesc = cleanTaskDescription(task.description);
+  
   return (
     <motion.div
       variants={fadeInUp}
-      className="bg-white rounded-lg p-3 shadow-sm border border-gray-100"
+      className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 active:scale-95 transition-transform"
       whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
       transition={{ duration: 0.2 }}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-2 min-h-[32px]">
         <div className="flex items-center gap-2 min-w-0">
           <StatusIcon status={task.status} />
           <span className="text-sm font-medium text-gray-900 truncate">{task.label}</span>
@@ -76,7 +95,9 @@ function AgentTaskCard({ task }: { task: AgentTask }) {
           <span className="text-[10px] text-gray-400 whitespace-nowrap">{task.duration}</span>
         )}
       </div>
-      <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{task.description}</p>
+      {cleanDesc && (
+        <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{cleanDesc}</p>
+      )}
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{task.model}</span>
         <span className="text-[10px] text-gray-400">{timeAgo(task.spawned_at)}</span>
@@ -153,12 +174,13 @@ export default function KanbanBoard() {
   ];
 
   return (
-    <div>
+    <div className="relative">
       <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-900">Task Board</h2>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Task Board</h2>
+        {/* Desktop button */}
         <motion.button
           onClick={() => setShowAdd(true)}
-          className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          className="hidden md:flex px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 active:scale-95 transition-colors"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -211,23 +233,15 @@ export default function KanbanBoard() {
 
       <style>{`
         .kanban-column {
-          height: calc(100vh - 220px);
-          max-height: calc(100vh - 220px);
+          height: calc(100vh - 240px);
+          max-height: calc(100vh - 240px);
           overflow-y: auto;
           overflow-x: hidden;
+          scrollbar-width: none;
         }
         .kanban-column::-webkit-scrollbar {
-          width: 6px;
-        }
-        .kanban-column::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .kanban-column::-webkit-scrollbar-thumb {
-          background: #d1d5db;
-          border-radius: 3px;
-        }
-        .kanban-column::-webkit-scrollbar-thumb:hover {
-          background: #9ca3af;
+          display: none;
+          width: 0;
         }
         .kanban-header {
           position: sticky;
@@ -237,20 +251,26 @@ export default function KanbanBoard() {
           margin-bottom: 0.75rem;
           border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
+        @media (max-width: 640px) {
+          .kanban-column {
+            height: calc(100vh - 280px);
+            max-height: calc(100vh - 280px);
+          }
+        }
       `}</style>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
         {columns.map(col => (
           <motion.div
             key={col.id}
-            className={`${col.color} rounded-xl p-4 kanban-column flex flex-col`}
+            className={`${col.color} rounded-xl p-3 md:p-4 kanban-column flex flex-col`}
             variants={fadeInUp}
             initial="hidden"
             animate="visible"
           >
-            <div className="kanban-header flex items-center justify-between">
+            <div className="kanban-header flex items-center justify-between gap-2">
               <h3 className="text-sm font-semibold text-gray-700">{col.label}</h3>
-              <span className="text-xs text-gray-400 bg-white px-2 py-0.5 rounded-full">{col.count}</span>
+              <span className="text-[11px] text-gray-600 bg-white px-2.5 py-1 rounded-full font-medium flex-shrink-0">{col.count}</span>
             </div>
             <motion.div className="space-y-2 flex-1" variants={staggerContainer} initial="hidden" animate="visible">
               <AnimatePresence>
@@ -285,6 +305,19 @@ export default function KanbanBoard() {
           </motion.div>
         ))}
       </div>
+
+      {/* Mobile FAB (Floating Action Button) */}
+      <motion.button
+        onClick={() => setShowAdd(true)}
+        className="md:hidden fixed bottom-20 right-4 w-14 h-14 bg-gray-900 text-white rounded-full shadow-lg flex items-center justify-center text-xl font-bold active:scale-90 transition-transform z-40"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      >
+        +
+      </motion.button>
     </div>
   );
 }

@@ -41,10 +41,69 @@ body {
   }
 }
 
-/* Mobile kanban column max-height override */
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  button, a {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Mobile optimizations */
 @media (max-width: 767px) {
+  body {
+    font-size: 16px; /* Prevent zoom on focus */
+  }
+  
+  /* Better heading scale on mobile */
+  h1 {
+    @apply text-xl;
+  }
+  h2 {
+    @apply text-lg;
+  }
+  h3 {
+    @apply text-base;
+  }
+  
+  /* Reduce padding on cards and containers on mobile */
+  .card, .p-4 {
+    @apply px-3 py-3;
+  }
+  
+  /* Remove horizontal scroll */
+  body, html {
+    overflow-x: hidden;
+  }
+  
+  /* Kanban column mobile height */
   .kanban-column {
     height: auto !important;
     max-height: 320px !important;
+  }
+
+  /* Status dot size increase for mobile */
+  .status-dot {
+    @apply w-1 h-1;
+  }
+}
+
+/* Safe area */
+@supports (padding-bottom: max(0px)) {
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .pb-safe {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
 }

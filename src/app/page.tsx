@@ -137,22 +137,22 @@ export default function Home() {
       {/* ── Main content ── */}
       <main className="flex-1 md:ml-[200px] min-h-screen">
         {/* Mobile header bar */}
-        <div className="md:hidden sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+        <div className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center gap-3">
           <div className="w-7 h-7 bg-black rounded-md flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-bold">A</span>
           </div>
-          <span className="text-sm font-semibold text-gray-900">{currentTabLabel}</span>
+          <span className="text-base font-semibold text-gray-900">{currentTabLabel}</span>
           <div className="ml-auto flex items-center gap-1.5">
             <motion.span
-              className="w-1.5 h-1.5 bg-green-400 rounded-full"
+              className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
             />
-            <span className="text-xs text-gray-400">{agents.filter(a => a.status === 'online').length} online</span>
+            <span className="text-xs text-gray-500">{agents.filter(a => a.status === 'online').length} online</span>
           </div>
         </div>
 
-        <div className="max-w-[1400px] mx-auto px-4 py-4 md:px-6 md:py-6 pb-[84px] md:pb-6">
+        <div className="max-w-[1400px] mx-auto px-3 py-3 md:px-6 md:py-6 pb-[90px] md:pb-6 sm:px-4 sm:py-4">
           <AnimatePresence mode="wait">
             <motion.div
               key={tab}
@@ -169,23 +169,23 @@ export default function Home() {
 
       {/* ── Mobile Bottom Tab Bar ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-bottom">
-        <div className="flex items-stretch h-[60px]">
+        <div className="flex items-stretch h-[64px]">
           {tabs.filter(t => primaryTabs.includes(t.id)).map(t => (
             <button
               key={t.id}
               onClick={() => handleTabChange(t.id)}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors min-w-0 tap-target ${
+              className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-colors min-h-[64px] active:bg-gray-50 ${
                 tab === t.id
                   ? 'text-gray-900'
                   : 'text-gray-400'
               }`}
             >
-              <span className="text-lg leading-none">{t.icon}</span>
-              <span className="text-[10px] font-medium leading-none truncate px-0.5">{t.label}</span>
+              <span className="text-2xl leading-none">{t.icon}</span>
+              <span className="text-[11px] font-medium leading-none truncate px-0.5">{t.label}</span>
               {tab === t.id && (
-                <motion.span
+                <motion.div
                   layoutId="bottom-nav-active"
-                  className="absolute bottom-0 w-8 h-0.5 bg-gray-900 rounded-full"
+                  className="absolute bottom-0 w-8 h-1 bg-gray-900 rounded-full"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
@@ -194,18 +194,18 @@ export default function Home() {
           {/* More button */}
           <button
             onClick={() => setMoreOpen(v => !v)}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors min-w-0 tap-target ${
+            className={`relative flex-1 flex flex-col items-center justify-center gap-1 transition-colors min-h-[64px] active:bg-gray-50 ${
               !primaryTabs.includes(tab) ? 'text-gray-900' : 'text-gray-400'
             }`}
           >
-            <span className="text-lg leading-none">
+            <span className="text-2xl leading-none">
               {!primaryTabs.includes(tab) ? (tabs.find(t => t.id === tab)?.icon ?? '⋯') : '⋯'}
             </span>
-            <span className="text-[10px] font-medium leading-none">More</span>
+            <span className="text-[11px] font-medium leading-none">More</span>
             {!primaryTabs.includes(tab) && (
-              <motion.span
+              <motion.div
                 layoutId="bottom-nav-active"
-                className="absolute bottom-0 w-8 h-0.5 bg-gray-900 rounded-full"
+                className="absolute bottom-0 w-8 h-1 bg-gray-900 rounded-full"
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
             )}

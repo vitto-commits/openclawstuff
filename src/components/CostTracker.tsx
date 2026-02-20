@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useSSE } from '@/hooks/useSSE';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import AnimatedCounter from './AnimatedCounter';
+import ClaudeUsage from './ClaudeUsage';
 import { apiJson } from '@/lib/api';
 
 export default function CostTracker() {
@@ -46,6 +47,8 @@ export default function CostTracker() {
 
   return (
     <div>
+      <ClaudeUsage />
+      
       <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 md:mb-6">Cost Tracker</h2>
 
       <motion.div

@@ -23,6 +23,25 @@ function getBarColor(pct: number | undefined): string {
   return 'bg-red-500';
 }
 
+function formatReset(isoString: string): string {
+  if (!isoString) return '';
+  try {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = date.getTime() - now.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (diffMs < 0) return 'Resetting soon';
+    if (diffHours < 1) return `Resets in ${diffMins}m`;
+    if (diffHours < 24) return `Resets in ${diffHours}h ${diffMins}m`;
+    
+    return `Resets ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+  } catch {
+    return '';
+  }
+}
+
 export default function ClaudeUsage() {
   const [usage, setUsage] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,7 +106,7 @@ export default function ClaudeUsage() {
       reset: usage.weekly_all_models_resets,
     },
     {
-      label: 'Weekly (Claude 3.5 Sonnet)',
+      label: 'Weekly (Sonnet)',
       percentage: usage.weekly_sonnet_pct,
       reset: usage.weekly_sonnet_resets,
     },
@@ -139,7 +158,7 @@ export default function ClaudeUsage() {
             </div>
             {metric.reset && (
               <p className="text-xs text-gray-400 mt-1">
-                Resets {metric.reset}
+                {formatReset(metric.reset)}
               </p>
             )}
           </motion.div>

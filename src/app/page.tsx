@@ -12,12 +12,13 @@ import FileUpload from '@/components/FileUpload';
 import MemoryViewer from '@/components/MemoryViewer';
 import MultiAgentChat from '@/components/MultiAgentChat';
 import CronManager from '@/components/CronManager';
+import PixelOffice from '@/components/PixelOffice';
 import Journal from '@/components/Journal';
 import DashboardOverview from '@/components/DashboardOverview';
 import { pageTransition } from '@/lib/animations';
 import { apiJson } from '@/lib/api';
 
-type Tab = 'overview' | 'tasks' | 'board' | 'agents' | 'activity' | 'journal' | 'costs' | 'files' | 'memory' | 'chat' | 'cron';
+type Tab = 'overview' | 'tasks' | 'board' | 'agents' | 'activity' | 'journal' | 'costs' | 'files' | 'memory' | 'chat' | 'cron' | 'office';
 
 const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'overview', label: 'Overview', icon: '🏠' },
@@ -31,6 +32,7 @@ const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'memory', label: 'Memory', icon: '🧠' },
   { id: 'chat', label: 'Chat', icon: '💬' },
   { id: 'cron', label: 'Cron', icon: '⏱️' },
+  { id: 'office', label: 'Office', icon: '🎮' },
 ];
 
 // Primary tabs shown in the bottom bar (5 + More)
@@ -51,6 +53,7 @@ const tabContent: Record<Tab, (props: TabProps) => React.ReactElement> = {
   memory: () => <MemoryViewer />,
   chat: () => <MultiAgentChat />,
   cron: () => <CronManager />,
+  office: () => <PixelOffice />,
 };
 
 export default function Home() {
